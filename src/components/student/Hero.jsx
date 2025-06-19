@@ -1,5 +1,6 @@
 import React from "react";
 import { assets } from "../../assets/assets";
+import SearchBar from "./SearchBar";
 
 const Hero = () => {
   return (
@@ -13,6 +14,7 @@ const Hero = () => {
 
       {/* Contenu centré superposé */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-8 text-center bg-black/40 space-y-5">
+        <div className="flex flex-col items-center justify-center px-4 md:px-8 text-center bg-black/50 space-y-5 p-7 rounded-2xl">
         <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold">
           Faculté des Sciences et Techniques
         </h1>
@@ -26,6 +28,9 @@ const Hero = () => {
           Un environnement stimulant pour réussir vos objectifs académiques et
           professionnels.
         </p>
+
+        <SearchBar />
+        </div>
       </div>
     </div>
   );
