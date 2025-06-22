@@ -17,6 +17,9 @@ const Navbar = () => {
       />
       <div className="hidden md:flex items-center gap-5 text-gray-500 ">
         <div className="flex items-center gap-5">
+          <Link to="/student/emplois">E-Scolarité</Link>
+        </div>
+        <div className="flex items-center gap-5">
           <Link to="/my-enrollments">Mes Cours</Link>
         </div>
         <button className="bg-blue-600 text-white px-5 py-2 rounded-full cursor-pointer">

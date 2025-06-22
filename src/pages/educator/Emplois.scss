@@ -1,0 +1,173 @@
+.emplois-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.emplois-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.page-title {
+  margin-bottom: 24px;
+  color: #1f2937;
+  font-weight: bold;
+}
+
+.filters-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .filter-select {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.table-section {
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.table-container {
+  min-width: 100%;
+
+  .time-header {
+    width: 120px;
+    background-color: #f9fafb;
+    font-weight: bold;
+  }
+
+  .day-header {
+    text-align: center;
+    min-width: 150px;
+    background-color: #f9fafb;
+    font-weight: bold;
+  }
+
+  .time-cell {
+    font-weight: 500;
+    background-color: #f9fafb;
+    vertical-align: top;
+  }
+
+  .slot-cell {
+    padding: 8px;
+    height: 96px;
+    vertical-align: top;
+  }
+}
+
+.emploi-slot {
+  -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .emploi-code {
+    font-weight: bold;
+    color: #616161;
+  }
+
+  .emploi-type {
+    color: #616161;
+  }
+
+  .emploi-matiere {
+    color: #616161;
+    font-size: 11px;
+  }
+
+  .emploi-enseignant {
+    color: #616161;
+    font-size: 11px;
+  }
+
+  .emploi-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: auto;
+
+    .action-btn {
+      min-width: 24px;
+      min-height: 24px;
+      padding: 2px;
+
+      .MuiSvgIcon-root {
+        font-size: 12px;
+      }
+    }
+
+    .delete-btn {
+      color: #dc2626;
+      border-color: #dc2626;
+
+      &:hover {
+        background-color: #fef2f2;
+        border-color: #dc2626;
+      }
+    }
+  }
+}
+
+.actions-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .create-btn {
+    background-color: #059669;
+
+    &:hover {
+      background-color: #047857;
+    }
+  }
+
+  .download-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.pagination-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  .pagination-info {
+    color: #6b7280;
+  }
+}
+
+@media (max-width: 768px) {
+  .emplois-container {
+    padding: 16px;
+  }
+
+  .filters-section {
+    flex-direction: column;
+  }
+
+  .actions-section {
+    flex-direction: column;
+  }
+
+  .emploi-slot {
+    font-size: 10px;
+
+    .emploi-matiere,
+    .emploi-enseignant {
+      font-size: 9px;
+    }
+  }
+}

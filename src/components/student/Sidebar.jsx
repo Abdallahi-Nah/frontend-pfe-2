@@ -8,28 +8,23 @@ const Sidebar = () => {
 
   const newMenuItems = [
     {
-      name: "Mon emploi",
-      path: "/educator/emplois",
+      name: "Mes emplois",
+      path: "/student/emplois",
       icon: assets.home_icon,
     },
     {
-      name: "Mes Cours",
-      path: "/educator/my-courses",
-      icon: assets.lesson_icon,
+      name: "Mes Résultats",
+      path: "/student/results",
+      icon: assets.my_course_icon,
     },
     {
-      name: "Ajouter un cours",
-      path: "/educator/add-course",
-      icon: assets.add_icon,
-    },
-    {
-      name: "Ajouter un résultat",
-      path: "/educator/add-result",
-      icon: assets.add_icon,
+      name: "Mes Attestations",
+      path: "/student/attestations",
+      icon: assets.my_course_icon,
     },
     {
       name: "Messageries",
-      path: "/educator/messageries",
+      path: "/student/messageries",
       icon: assets.person_tick_icon,
     },
   ];
@@ -41,7 +36,7 @@ const Sidebar = () => {
           <NavLink
             to={item.path}
             key={item.name}
-            end={item.path === "/educator"}
+            end={item.path === "/student"}
             className={({ isActive }) =>
               `flex items-center md:flex-row flex-col md:justify-start justify-center py-3.5 md:px-10 gap-3 ${
                 isActive
