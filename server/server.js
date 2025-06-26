@@ -3,6 +3,7 @@ dotenv.config({ path: ".env" });
 console.log("Cloudinary Key:", process.env.CLOUDINARY_API_KEY);
 
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
 require("./connection/db.connection");
 // routes
@@ -24,6 +25,7 @@ const ApiErrors = require("./utils/ApiErrors.utils");
 const globalErrors = require("./my_middlewares/globalErrors");
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 if (process.env.NODE_ENV == "development") {
   app.use(morgan("dev"));

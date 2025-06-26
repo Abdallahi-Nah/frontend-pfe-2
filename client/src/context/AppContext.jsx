@@ -3,10 +3,13 @@ import { createContext } from "react";
 import { dummyCourses } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const currency = import.meta.env.VITE_CURRENCY;
   const navigate = useNavigate();
 
@@ -16,7 +19,17 @@ export const AppContextProvider = (props) => {
 
   // fetch all courses
   const fetchAllCourses = async () => {
-    setAllCourses(dummyCourses);
+    try {
+      const { data } = await axios.get(backendUrl + "/course/all");
+
+      if (data.success) {
+        setAllCourses(data.courses);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   // function to calculate avg rating of course
@@ -41,6 +54,8 @@ export const AppContextProvider = (props) => {
 
   // function to calculate the course duration
   const calculateCourseDuration = (course) => {
+    console.log("Course", course); // 🔍 Vérifie si course est bien un objet
+    console.log("CourseContent", course.courseContent);
     let time = 0;
 
     course.courseContent.map((chapter) =>
@@ -85,6 +100,7 @@ export const AppContextProvider = (props) => {
     calculateNoOfLectures,
     enrolledCourses,
     fetchUserEnrolledCourses,
+    fetchAllCourses,
   };
 
   return (

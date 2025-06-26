@@ -162,17 +162,17 @@ exports.deleteEtudiant = factory.deleteOne(Etudiant, "Etudiant");
 // };
 
 // get Student Course Progress
-// export const getUserCourseProgress = async (req, res) => {
-//   try {
-//     const userId = req.auth.userId;
-//     const { courseId, lectureId } = req.body;
-//     const progressData = await CourseProgress.findOne({ userId, courseId });
+exports.getUserCourseProgress = async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { courseId, lectureId } = req.body;
+    const progressData = await CourseProgress.findOne({ userId, courseId });
 
-//     res.json({ success: true, progressData });
-//   } catch (error) {
-//     res.json({ success: false, message: error.message });
-//   }
-// };
+    res.json({ success: true, progressData });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
 // Add student ratings to course
 // export const addUserRating = async (req, res) => {
