@@ -1,16 +1,22 @@
-const asyncHandler = require('express-async-handler');
-const { v4: uuidv4 } = require('uuid');
-const sharp = require('sharp');
-const bcrypt = require('bcryptjs');
+const asyncHandler = require("express-async-handler");
+const { v4: uuidv4 } = require("uuid");
+const sharp = require("sharp");
+const bcrypt = require("bcryptjs");
 
-const factory = require('./handlersFactory');
-const ApiError = require('../utils/ApiErrors.utils');
-const { uploadSingleImage } = require('../my_middlewares/uploadImageMiddleware');
-const createToken = require('../utils/createToken');
-const Enseignant = require('../models/enseignant.model');
+const factory = require("./handlersFactory");
+const ApiError = require("../utils/ApiErrors.utils");
+const {
+  uploadSingleImage,
+} = require("../my_middlewares/uploadImageMiddleware");
+const createToken = require("../utils/createToken");
+const Enseignant = require("../models/enseignant.model");
+
+const Course = require("../models/Course.js");
+const cloudinary = require("../configs/cloudinary"); // au lieu de require("cloudinary").v2
+
 
 // Upload single image
-exports.uploadEnseignantImage = uploadSingleImage('profileImg');
+exports.uploadEnseignantImage = uploadSingleImage("profileImg");
 
 // Image processing
 exports.resizeImage = asyncHandler(async (req, res, next) => {
@@ -19,7 +25,7 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
   if (req.file) {
     await sharp(req.file.buffer)
       .resize(600, 600)
-      .toFormat('jpeg')
+      .toFormat("jpeg")
       .jpeg({ quality: 95 })
       .toFile(`uploads/etudiants/${filename}`);
 
@@ -53,7 +59,7 @@ exports.updateEnseignant = asyncHandler(async (req, res, next) => {
       matieresEnseignes: req.body.matieresEnseignes,
       disponibilites: req.body.disponibilites,
       preferencesPedagogiques: req.body.preferencesPedagogiques,
-      role: "enseignant"
+      role: "enseignant",
     },
     {
       new: true,
@@ -91,41 +97,100 @@ exports.getLoggedEnseignantData = asyncHandler(async (req, res, next) => {
   next();
 });
 
-exports.updateLoggedEnseignantPassword = asyncHandler(async (req, res, next) => {
-  // 1) Update user password based user payload (req.enseignant._id)
-  const enseignant = await Enseignant.findByIdAndUpdate(
-    req.enseignant._id,
-    {
-      motDePasse: await bcrypt.hash(req.body.motDePasse, 12),
-      passwordChangedAt: Date.now(),
-    },
-    {
-      new: true,
-    }
-  );
+exports.updateLoggedEnseignantPassword = asyncHandler(
+  async (req, res, next) => {
+    // 1) Update user password based user payload (req.enseignant._id)
+    const enseignant = await Enseignant.findByIdAndUpdate(
+      req.enseignant._id,
+      {
+        motDePasse: await bcrypt.hash(req.body.motDePasse, 12),
+        passwordChangedAt: Date.now(),
+      },
+      {
+        new: true,
+      }
+    );
 
-  // 2) Generate token
-  const token = createToken(enseignant._id);
+    // 2) Generate token
+    const token = createToken(enseignant._id);
 
-  res.status(200).json({ data: enseignant, token });
-});
+    res.status(200).json({ data: enseignant, token });
+  }
+);
 
 exports.deactivateLoggedEnseignant = asyncHandler(async (req, res, next) => {
-  const enseignant = await Enseignant.findByIdAndUpdate(req.enseignant._id, {active: false}, {new: true});
-  if(!enseignant) {
+  const enseignant = await Enseignant.findByIdAndUpdate(
+    req.enseignant._id,
+    { active: false },
+    { new: true }
+  );
+  if (!enseignant) {
     return next(new ApiError("Pas d'enseignant", 404));
   }
   const token = createToken(enseignant._id);
 
-  res.status(200).json({message: "enseignant desactivèe avec succèe", data: enseignant, token});
+  res
+    .status(200)
+    .json({
+      message: "enseignant desactivèe avec succèe",
+      data: enseignant,
+      token,
+    });
 });
 
 exports.activateLoggedEnseignant = asyncHandler(async (req, res, next) => {
-  const enseignant = await Enseignant.findByIdAndUpdate(req.enseignant._id, {active: true}, {new: true});
-  if(!enseignant) {
+  const enseignant = await Enseignant.findByIdAndUpdate(
+    req.enseignant._id,
+    { active: true },
+    { new: true }
+  );
+  if (!enseignant) {
     return next(new ApiError("Pas d'enseignant", 404));
   }
   const token = createToken(enseignant._id);
 
-  res.status(200).json({message: "enseignant activateè avec succèe", data: enseignant, token});
+  res
+    .status(200)
+    .json({
+      message: "enseignant activateè avec succèe",
+      data: enseignant,
+      token,
+    });
 });
+
+// Add new course
+exports.addCourse = async (req, res) => {
+  try {
+    const { courseData } = req.body;
+    const imageFile = req.file;
+    const educatorId = "6807995415366c19744d377a";
+
+    if (!imageFile) {
+      return res.json({ success: false, message: "Thumbnail Not Attached" });
+    }
+
+    const parsedCourseData = await JSON.parse(courseData);
+    parsedCourseData.educator = educatorId;
+
+    const newCourse = await Course.create(parsedCourseData);
+    const imageUpload = await cloudinary.uploader.upload(imageFile.path);
+    newCourse.courseThumbnail = imageUpload.secure_url;
+    await newCourse.save();
+
+    res.json({ success: true, message: "Cours ajouté" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Get Educator Courses
+exports.getEducatorCourses = async (req, res) => {
+  try {
+    const educator = "6807995415366c19744d377a";
+
+    const courses = await Course.find({ educator });
+    res.json({ success: true, courses });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};

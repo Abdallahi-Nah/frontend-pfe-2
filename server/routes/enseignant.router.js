@@ -5,8 +5,11 @@ const {
     getEnseignants,
     getEnseignant,
     updateEnseignant,
-    deleteEnseignant
+    deleteEnseignant,
+    addCourse,
+    getEducatorCourses
 } = require("../controller/enseignant.controller");
+const upload = require("../configs/multer");
 const {
   createEnseignantValidator,
   getEnseignantByNameValidator,
@@ -30,5 +33,12 @@ router.get('/get/:id', getEnseignantByIdValidator, getEnseignant);
 // router.get('/getModuleInfos/:id', getModuleByIdValidator, getModuleInfos);
 router.put('/update/:id', updateEnseignantValidator, updateEnseignant);
 router.delete('/delete/:id', deleteEnseignantValidator, deleteEnseignant);
+
+router.post(
+  "/add-course",
+  upload.single("image"),
+  addCourse
+);
+router.get("/courses", getEducatorCourses);
 
 module.exports = router;
