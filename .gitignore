@@ -1,0 +1,7 @@
+# Ignorer node_modules des deux côtés
+client/node_modules/
+server/node_modules/
+
+# Ignorer les fichiers d'environnement des deux côtés
+client/.env
+server/.env
