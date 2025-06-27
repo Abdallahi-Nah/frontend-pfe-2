@@ -221,24 +221,6 @@ const Emplois = () => {
                                 <div className="emploi-enseignant">
                                   {emploi.enseignant}
                                 </div>
-                                <div className="emploi-actions">
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
-                                    className="action-btn"
-                                    component={Link}
-                                    to={"new-emplois/" + emploi.id}
-                                  >
-                                    <Edit fontSize="small" />
-                                  </Button>
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
-                                    className="action-btn delete-btn"
-                                  >
-                                    <Delete fontSize="small" />
-                                  </Button>
-                                </div>
                               </div>
                             )}
                           </TableCell>

@@ -16,12 +16,14 @@ import StudentEmplois from "./pages/student/Emplois.jsx";
 import Result from "./pages/student/Result.jsx";
 import Attestation from "./pages/student/Attestation.jsx";
 import StudentMessage from "./pages/student/Message.jsx";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   const isEducatorRoute = useMatch("/educator/*");
 
   return (
     <div className="text-default min-h-screen bg-white">
+      <ToastContainer />
       {!isEducatorRoute && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />

@@ -1,15 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import uniqid from "uniqid";
 import Quill from "quill";
 import { assets } from "../../assets/assets";
+import { AppContext } from "../../context/AppContext";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const AddCourse = () => {
+  const { backendUrl } = useContext(AppContext);
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
   const [courseTitle, setCourseTitle] = useState("");
-  const [coursePrice, setCoursePrice] = useState(0);
-  const [discount, setDiscount] = useState(0);
   const [image, setImage] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -18,12 +20,12 @@ const AddCourse = () => {
     lectureTitle: "",
     lectureDuration: "",
     lectureUrl: "",
-    isPreviewFree: false,
+    isPreviewFree: true,
   });
 
   const handleChapter = (action, chapterId) => {
     if (action === "add") {
-      const title = prompt("Enter Chapter Name:");
+      const title = prompt("Entrez le nom du chapitre :");
       if (title) {
         const newChapter = {
           chapterId: uniqid(),
@@ -91,12 +93,69 @@ const AddCourse = () => {
       lectureTitle: "",
       lectureDuration: "",
       lectureUrl: "",
-      isPreviewFree: false,
+      isPreviewFree: true,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!image) {
+      toast.error("Thumbnail Not Selected");
+      return;
+    }
+
+    if (chapters.length === 0) {
+      toast.error("Please add at least one chapter");
+      return;
+    }
+
+    const hasLecture = chapters.some(
+      (chapter) => chapter.chapterContent.length > 0
+    );
+    if (!hasLecture) {
+      toast.error("Please add at least one lecture");
+      return;
+    }
+
+    const courseData = {
+      courseTitle,
+      courseDescription: quillRef.current.root.innerHTML,
+      courseContent: chapters,
+    };
+
+    const formData = new FormData();
+    formData.append("courseData", JSON.stringify(courseData));
+    formData.append("image", image);
+
+    for (let [key, value] of formData.entries()) {
+      console.log("FormData:", key, value);
+    }
+
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/enseignant/add-course",
+        formData
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        setCourseTitle("");
+        setImage(null);
+        setChapters([]);
+        quillRef.current.root.innerHTML = "";
+      } else {
+        toast.error(data.message || "Course creation failed");
+      }
+    } catch (error) {
+      console.error("Error during course submission:", error);
+      if (error.response) {
+        console.log("Error response:", error.response);
+        toast.error(error.response.data.message || "Server error");
+      } else {
+        toast.error(error.message || "Unknown error");
+      }
+    }
   };
 
   useEffect(() => {
@@ -113,6 +172,7 @@ const AddCourse = () => {
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 max-w-md w-full text-gray-500"
       >
+        {/* Input Titre */}
         <div className="flex flex-col gap-1">
           <p>Titre du cours</p>
           <input
@@ -124,10 +184,14 @@ const AddCourse = () => {
             required
           />
         </div>
+
+        {/* Description */}
         <div className="flex flex-col gap-1">
           <p>Description du cours</p>
           <div ref={editorRef}></div>
         </div>
+
+        {/* Image */}
         <div className="flex items-center justify-between flex-wrap">
           <div className="flex md:flex-row flex-col items-center gap-3">
             <p>Vignette du cours</p>
@@ -150,12 +214,13 @@ const AddCourse = () => {
             />
             <img
               className="max-h-10"
-              src={image ? URL.createObjectURL(image) : ""}
+              src={image ? URL.createObjectURL(image) : null}
               alt=""
             />
           </div>
         </div>
-        {/* Adding chapters and lectures */}
+
+        {/* Chapitres et Leçons */}
         <div>
           {chapters.map((chapter, chapterIndex) => (
             <div key={chapterIndex} className="bg-white border rounded-lg mb-4">
@@ -175,7 +240,7 @@ const AddCourse = () => {
                   </span>
                 </div>
                 <span className="text-gray-500">
-                  {chapter.chapterContent.length} Leçons
+                  {chapter.chapterContent.length} Lectures
                 </span>
                 <img
                   src={assets.cross_icon}
@@ -201,7 +266,7 @@ const AddCourse = () => {
                         >
                           Link
                         </a>{" "}
-                        - {lecture.isPreviewFree ? "Aperçu gratuit" : "Payant"}
+                        - {lecture.isPreviewFree ? "Free Preview" : "Paid"}
                       </span>
                       <img
                         src={assets.cross_icon}
@@ -233,10 +298,14 @@ const AddCourse = () => {
           >
             + Ajouter un chapitre
           </div>
+
+          {/* Popup d'ajout de leçon */}
           {showPopup && (
             <div className="fixed inset-0 flex items-center justify-center bg-gray-400/40">
-              <div className="bg-white text-gray-700 p-4 rounded relative w-3/5 max-w-none">
-                <h2 className="text-lg font-semibold mb-4">Add Lecture</h2>
+              <div className="bg-white text-gray-700 p-4 rounded relative w-full max-w-80">
+                <h2 className="text-lg font-semibold mb-4">
+                  Ajouter une leçon
+                </h2>
                 <div className="mb-2">
                   <p>Titre de la leçon</p>
                   <input
@@ -252,7 +321,7 @@ const AddCourse = () => {
                   />
                 </div>
                 <div className="mb-2">
-                  <p>Durée (minutes)</p>
+                  <p>Durée (en minutes)</p>
                   <input
                     type="number"
                     className="mt-1 block w-full border rounded py-1 px-2"
@@ -266,7 +335,7 @@ const AddCourse = () => {
                   />
                 </div>
                 <div className="mb-2">
-                  <p>URL de la leçon</p>
+                  <p>Lien de la leçon</p>
                   <input
                     type="text"
                     className="mt-1 block w-full border rounded py-1 px-2"
@@ -280,7 +349,7 @@ const AddCourse = () => {
                   />
                 </div>
                 <div className="flex gap-2 my-4">
-                  <p>L'aperçu est-il gratuit ?</p>
+                  <p>L’aperçu est-il gratuit ?</p>
                   <input
                     type="checkbox"
                     className="mt-1 scale-125"
@@ -310,11 +379,13 @@ const AddCourse = () => {
             </div>
           )}
         </div>
+
+        {/* Bouton final */}
         <button
           type="submit"
-          className="bg-black text-white w-max py-2.5 px-8 rounded my-4"
+          className="bg-black text-white w-max py-2.5 px-8 rounded my-4 cursor-pointer"
         >
-          AJOUTER
+          Ajouter un cours
         </button>
       </form>
     </div>

@@ -6,23 +6,27 @@ import humanizeDuration from "humanize-duration";
 import YouTube from "react-youtube";
 import Footer from "../../components/student/Footer";
 import Rating from "../../components/student/Rating";
+import Loading from "../../components/student/Loading";
 
 const Player = () => {
-  const { enrolledCourses, calculateChapterTime } = useContext(AppContext);
+  const { allCourses, calculateChapterTime } = useContext(AppContext);
+
   const { courseId } = useParams();
   const [courseData, setCourseData] = useState(null);
   const [openSections, setOpenSections] = useState({});
   const [playerData, setPlayerData] = useState(null);
+  const [initialRating, setInitialRating] = useState(0);
 
   useEffect(() => {
-    // Ne rien faire si les données ne sont pas prêtes
-    if (!enrolledCourses || enrolledCourses.length === 0) return;
+    if (!allCourses || allCourses.length === 0) return;
 
-    const course = enrolledCourses.find((c) => c._id === courseId);
+    const course = allCourses.find((c) => c._id === courseId);
     if (course) {
       setCourseData(course);
+
+      // Utilisateur non connecté : initialRating restera à 0
     }
-  }, [courseId, enrolledCourses]);
+  }, [courseId, allCourses]);
 
   const toggleSection = (index) => {
     setOpenSections((prev) => ({
@@ -31,12 +35,12 @@ const Player = () => {
     }));
   };
 
-  return (
+  return courseData ? (
     <>
       <div className="p-4 sm:p-10 flex flex-col-reverse md:grid md:grid-cols-2 gap-10 md:px-36">
-        {/* Left column */}
+        {/* Colonne gauche */}
         <div className="text-gray-800">
-          <h2 className="text-xl font-semibold">Course Structure</h2>
+          <h2 className="text-xl font-semibold">Structure du cours</h2>
           <div className="pt-5">
             {courseData &&
               courseData.courseContent.map((chapter, index) => (
@@ -61,7 +65,7 @@ const Player = () => {
                       </p>
                     </div>
                     <p className="text-sm md:text-base">
-                      {chapter.chapterContent.length} lectures -{" "}
+                      {chapter.chapterContent.length} Leçons -{" "}
                       {calculateChapterTime(chapter)}
                     </p>
                   </div>
@@ -75,13 +79,11 @@ const Player = () => {
                       {chapter.chapterContent.map((lecture, i) => (
                         <li key={i} className="flex items-center gap-2 py-1">
                           <img
-                            src={
-                              false ? assets.blue_tick_icon : assets.play_icon
-                            }
+                            src={assets.play_icon}
                             alt="play icon"
                             className="w-4 h-4"
                           />
-                          <div className="flex  items-center justify-between w-full text-gray-800 text-xs md:text-base">
+                          <div className="flex items-center justify-between w-full text-gray-800 text-xs md:text-base">
                             <p>{lecture.lectureTitle}</p>
                             <div className="flex gap-2">
                               {lecture.lectureUrl && (
@@ -95,7 +97,7 @@ const Player = () => {
                                   }
                                   className="text-blue-500 cursor-pointer"
                                 >
-                                  Voir
+                                  Regarder
                                 </p>
                               )}
                               <p>
@@ -113,13 +115,15 @@ const Player = () => {
                 </div>
               ))}
           </div>
+
+          {/* Section rating (lecture seule, sans interaction) */}
           <div className="flex items-center gap-2 py-3 mt-10">
-            <h1 className="text-xl font-bold">Rate this course : </h1>
-            <Rating initialRating={0} />
+            <h1 className="text-xl font-bold">Évaluer ce cours : </h1>
+            <Rating initialRating={initialRating} />
           </div>
         </div>
 
-        {/* Right column */}
+        {/* Colonne droite : lecteur YouTube ou image */}
         <div className="md:mt-10">
           {playerData ? (
             <div>
@@ -133,18 +137,25 @@ const Player = () => {
                   {playerData.lectureTitle}
                 </p>
                 <button className="text-blue-600 cursor-pointer">
-                  {false ? "Terminé" : "Marquer comme terminé"}
+                  Mark As Complete
                 </button>
               </div>
             </div>
           ) : (
-            <img src={courseData ? courseData.courseThumbnail : ""} alt="" />
+            <img
+              src={courseData ? courseData.courseThumbnail : ""}
+              alt="Course thumbnail"
+              className="w-full object-cover"
+            />
           )}
         </div>
       </div>
       <Footer />
     </>
+  ) : (
+    <Loading />
   );
 };
 
 export default Player;
+
