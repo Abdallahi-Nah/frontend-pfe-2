@@ -1,12 +1,22 @@
 import React from "react";
 import { assets } from "../../assets/assets";
+import { Link, useLocation } from "react-router-dom";
+import Cookie from "cookie-universal";
 
 const Hero = () => {
+  const cookies = Cookie();
+  const location = useLocation();
+
+  const token = cookies.get("token");
+  const isLoginPage = location.pathname === "/login";
+
+  const shouldShowStartButton = !token && !isLoginPage;
+
   return (
     <div className="relative w-full h-[80vh] md:h-[90vh] lg:h-[100vh] overflow-hidden">
       {/* Image de fond responsive */}
       <img
-        src={assets.fstBackground} // Remplace par "/mnt/data/backgroundFST.PNG" si image locale
+        src={assets.fstBackground} // ex: "/mnt/data/backgroundFST.PNG"
         alt="Faculté des Sciences et Techniques"
         className="w-full h-full object-cover"
       />
@@ -28,14 +38,16 @@ const Hero = () => {
             professionnels.
           </p>
 
-          <div className="flex items-center font-medium gap-6 mt-4">
-            <button className="px-10 py-3 rounded-md text-white bg-blue-600 cursor-pointer">
-              Commencer
-            </button>
-            <button className="flex items-center gap-2 cursor-pointer">
-              En savoir plus <img src={assets.arrow_icon} alt="arrow_icon" />
-            </button>
-          </div>
+          {shouldShowStartButton && (
+            <div className="flex items-center font-medium gap-6 mt-4">
+              <Link
+                to="/login"
+                className="px-10 py-3 rounded-md text-white bg-blue-600 cursor-pointer"
+              >
+                Commencer
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

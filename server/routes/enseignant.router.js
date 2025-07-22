@@ -22,10 +22,13 @@ const {
 } = require("../utils/validators/enseignantValidator");
 
 // const matiereRoutes = require('./matiere.routes');
+const emploisRoutes = require("./emplois.routes");
+
 
 const router = express.Router({ mergeParams: true });
 
 // router.use('/:moduleId/matiere', matiereRoutes);
+router.use("/:enseignantId/emplois", emploisRoutes);
 
 router.post("/create", createEnseignantValidator, createEnseignant);
 router.get("/get", getEnseignants);

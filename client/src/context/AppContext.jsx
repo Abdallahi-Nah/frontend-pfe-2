@@ -16,6 +16,7 @@ export const AppContextProvider = (props) => {
   const [allCourses, setAllCourses] = useState([]);
   const [isEducator, setIsEducator] = useState(true);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [emplois, setEmplois] = useState([]);
 
   // fetch all courses
   const fetchAllCourses = async () => {
@@ -83,9 +84,22 @@ export const AppContextProvider = (props) => {
     setEnrolledCourses(dummyCourses);
   };
 
+  const fetchEmplois = async () => {
+    try {
+      const url = `${backendUrl}/emplois/get`;
+      console.log("url emplois : ", url);
+      const res = await axios.get(url);
+      console.log("res emplois : ", res);
+      setEmplois(res.data.data);
+    } catch (err) {
+      console.error("Erreur fetch emplois :", err);
+    }
+  };
+
   useEffect(() => {
     fetchAllCourses();
     fetchUserEnrolledCourses();
+    fetchEmplois();
   }, []);
 
   const value = {
@@ -102,6 +116,9 @@ export const AppContextProvider = (props) => {
     fetchUserEnrolledCourses,
     fetchAllCourses,
     backendUrl,
+    emplois,
+    setEmplois,
+    fetchEmplois,
   };
 
   return (

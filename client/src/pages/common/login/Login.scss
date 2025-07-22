@@ -1,0 +1,440 @@
+// Color Variables
+$primary-teal: #4ECDC4;
+$primary-teal-dark: #45B7B8;
+$primary-teal-light: #6BCF7F;
+$coral: #FF6B6B;
+$white: #FFFFFF;
+$gray-light: #F8F9FA;
+$gray-medium: #6C757D;
+$gray-dark: #343A40;
+$shadow: rgba(0, 0, 0, 0.1);
+$shadow-strong: rgba(0, 0, 0, 0.15);
+
+// Typography
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-2xl: 1.5rem;
+$font-size-3xl: 2rem;
+
+// Spacing
+$spacing-1: 0.25rem;
+$spacing-2: 0.5rem;
+$spacing-3: 0.75rem;
+$spacing-4: 1rem;
+$spacing-5: 1.25rem;
+$spacing-6: 1.5rem;
+$spacing-8: 2rem;
+$spacing-10: 2.5rem;
+$spacing-12: 3rem;
+
+// Breakpoints
+$mobile: 768px;
+$tablet: 1024px;
+
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gray-light;
+  font-family: $font-family;
+  padding: $spacing-4;
+
+  &__container {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    min-height: 600px;
+    background: $white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px $shadow-strong;
+    overflow: hidden;
+
+    @media (max-width: $mobile) {
+      flex-direction: column;
+      max-width: 400px;
+      min-height: auto;
+    }
+  }
+
+  // Left Panel - Welcome Section
+  &__welcome-panel {
+    flex: 1;
+    background: linear-gradient(135deg, #fff 0%, #fff 100%);
+    display: flex;
+    border-right: 2px solid $primary-teal-light;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: $spacing-8;
+    color: $white;
+
+    @media (max-width: $mobile) {
+      padding: $spacing-6 $spacing-4;
+      min-height: 250px;
+    }
+  }
+
+  &__welcome-content {
+    text-align: center;
+    z-index: 2;
+    position: relative;
+  }
+
+  &__welcome-title {
+    font-size: $font-size-3xl;
+    font-weight: 700;
+    margin: 0 0 $spacing-4 0;
+    line-height: 1.2;
+
+    @media (max-width: $mobile) {
+      font-size: $font-size-2xl;
+      margin-bottom: $spacing-3;
+    }
+  }
+
+  &__welcome-text {
+    font-size: $font-size-base;
+    line-height: 1.6;
+    margin: 0 0 $spacing-8 0;
+    opacity: 0.9;
+    max-width: 280px;
+
+    @media (max-width: $mobile) {
+      font-size: $font-size-sm;
+      margin-bottom: $spacing-6;
+      max-width: none;
+    }
+  }
+
+  &__toggle-btn {
+    background: transparent;
+    border: 2px solid $white;
+    color: $white;
+    padding: $spacing-3 $spacing-8;
+    border-radius: 25px;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: $white;
+      color: $primary-teal;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: $mobile) {
+      padding: $spacing-2 $spacing-6;
+      font-size: $font-size-xs;
+    }
+  }
+
+  // Decorative Shapes
+  &__shape {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+
+    &--top {
+      width: 100px;
+      height: 100px;
+      top: -50px;
+      right: -50px;
+      transform: rotate(45deg);
+
+      @media (max-width: $mobile) {
+        width: 60px;
+        height: 60px;
+        top: -30px;
+        right: -30px;
+      }
+    }
+
+    &--bottom {
+      width: 150px;
+      height: 150px;
+      bottom: -75px;
+      left: -75px;
+      transform: rotate(45deg);
+
+      @media (max-width: $mobile) {
+        width: 80px;
+        height: 80px;
+        bottom: -40px;
+        left: -40px;
+      }
+    }
+  }
+
+  // Right Panel - Form Section
+  &__form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-8;
+    background: $white;
+
+    @media (max-width: $mobile) {
+      padding: $spacing-6 $spacing-4;
+    }
+  }
+
+  &__form-content {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  &__form-title {
+    font-size: $font-size-2xl;
+    font-weight: 700;
+    color: $gray-dark;
+    text-align: center;
+    margin: 0 0 $spacing-8 0;
+
+    @media (max-width: $mobile) {
+      font-size: $font-size-xl;
+      margin-bottom: $spacing-6;
+    }
+  }
+
+  // Social Login Buttons
+  &__social-buttons {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-4;
+    margin-bottom: $spacing-6;
+  }
+
+  &__social-btn {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #E0E0E0;
+    border-radius: 50%;
+    background: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px $shadow;
+      border-color: $primary-teal;
+    }
+
+    @media (max-width: $mobile) {
+      width: 45px;
+      height: 45px;
+    }
+  }
+
+  &__social-icon {
+    width: 24px;
+    height: 24px;
+
+    @media (max-width: $mobile) {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  // Divider
+  &__divider {
+    text-align: center;
+    margin: $spacing-6 0;
+    position: relative;
+    color: $gray-medium;
+    font-size: $font-size-sm;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #E0E0E0;
+    }
+
+    span {
+      background: $white;
+      padding: 0 $spacing-4;
+      position: relative;
+    }
+  }
+
+  // Form
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  &__input-group {
+    position: relative;
+  }
+
+  &__input {
+    width: 100%;
+    padding: $spacing-4;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: $font-size-base;
+    background: $gray-light;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-teal;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    &::placeholder {
+      color: $gray-medium;
+    }
+
+    @media (max-width: $mobile) {
+      padding: $spacing-3;
+      font-size: $font-size-sm;
+    }
+  }
+
+  &__forgot {
+    text-align: right;
+    margin: $spacing-2 0;
+  }
+
+  &__forgot-link {
+    color: $gray-medium;
+    text-decoration: none;
+    font-size: $font-size-sm;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: $primary-teal;
+    }
+  }
+
+  &__submit-btn {
+    background: linear-gradient(135deg, $primary-teal 0%, $primary-teal-dark 100%);
+    color: $white;
+    border: none;
+    border-radius: 25px;
+    padding: $spacing-4 $spacing-8;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: $spacing-4;
+    position: relative;
+    overflow: hidden;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    &--loading {
+      color: transparent;
+    }
+
+    @media (max-width: $mobile) {
+      padding: $spacing-3 $spacing-6;
+      font-size: $font-size-xs;
+    }
+  }
+
+  &__spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid $white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+// Focus styles for accessibility
+.login__toggle-btn:focus-visible,
+.login__social-btn:focus-visible,
+.login__input:focus-visible,
+.login__submit-btn:focus-visible,
+.login__forgot-link:focus-visible {
+  outline: 2px solid $primary-teal;
+  outline-offset: 2px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .login {
+    &__container {
+      border: 2px solid $gray-dark;
+    }
+
+    &__input {
+      border-width: 2px;
+    }
+
+    &__social-btn {
+      border-width: 2px;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .login {
+    &__toggle-btn,
+    &__social-btn,
+    &__input,
+    &__submit-btn {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
+
+    &__spinner {
+      animation: none;
+    }
+  }
+}

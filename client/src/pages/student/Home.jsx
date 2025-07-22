@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Hero from "../../components/student/Hero";
 import Widget from "../../components/student/Widget";
 import ApartmentIcon from "@mui/icons-material/Apartment";
@@ -11,42 +11,81 @@ import "./animations.css";
 import TestimonialsSection from "../../components/student/TestimonialsSection";
 import CallToAction from "../../components/student/CallToAction";
 import Footer from "../../components/student/Footer";
+import axios from "axios";
+import CountUp from "react-countup";
 
 const data = [
   {
+    key: "departments",
     title: "LES DEPARTEMENTS",
-    counter: 6,
     icon: <ApartmentIcon className="icon" />,
   },
   {
+    key: "specialties",
     title: "LES SPECIALITES",
-    counter: 45,
     icon: <SchoolIcon className="icon" />,
   },
   {
+    key: "modules",
     title: "LES MODULES",
-    counter: 250,
     icon: <ViewModuleIcon className="icon" />,
   },
   {
+    key: "matieres",
     title: "LES MATIERES",
-    counter: 600,
     icon: <MenuBookIcon className="icon" />,
   },
   {
+    key: "enseignants",
     title: "LES ENSEIGNANTS",
-    counter: 130,
     icon: <HailIcon className="icon" />,
   },
   {
+    key: "etudiants",
     title: "LES ETUDIANTS",
-    counter: 5560,
     icon: <GroupIcon className="icon" />,
   },
 ];
 
-
 const Home = () => {
+  const [stats, setStats] = useState({
+    departments: 0,
+    specialties: 0,
+    modules: 0,
+    matieres: 0,
+    enseignants: 0,
+    etudiants: 0,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [deptRes, specRes, modRes, matRes, ensRes, etuRes] =
+          await Promise.all([
+            axios.get("http://localhost:4000/departement/get"),
+            axios.get("http://localhost:4000/specialite/get"),
+            axios.get("http://localhost:4000/module/get"),
+            axios.get("http://localhost:4000/matiere/get"),
+            axios.get("http://localhost:4000/enseignant/get"),
+            axios.get("http://localhost:4000/etudiant/get"),
+          ]);
+
+        setStats({
+          departments: deptRes.data?.results || 0,
+          specialties: specRes.data?.results || 0,
+          modules: modRes.data?.results || 0,
+          matieres: matRes.data?.results || 0,
+          enseignants: ensRes.data?.results || 0,
+          etudiants: etuRes.data?.results || 0,
+        });
+      } catch (error) {
+        console.error("Erreur lors de la récupération des stats :", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div className="flex flex-col items-center space-y-7 text-center">
       <Hero />
@@ -54,6 +93,7 @@ const Home = () => {
       <h2 className="text-2xl font-bold text-gray-800 uppercase tracking-wider">
         Informations de la Faculté
       </h2>
+
       <div className="flex flex-wrap justify-between gap-5 p-5">
         {data.map((item, i) => (
           <div
@@ -63,12 +103,15 @@ const Home = () => {
           >
             <Widget
               title={item.title}
-              counter={item.counter}
               icon={item.icon}
+              counter={
+                <CountUp end={stats[item.key]} duration={2} separator=" " />
+              }
             />
           </div>
         ))}
       </div>
+
       <TestimonialsSection />
       <CallToAction />
       <Footer />

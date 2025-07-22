@@ -40,23 +40,23 @@ exports.createEmploisValidator = [
     .notEmpty()
     .withMessage("enseignant id must be not empty")
     .isMongoId()
-    .withMessage("invalid enseignant id")
-    .custom((enseignantId, {req}) =>
-        EnseignantModel.findById(enseignantId).then((enseignant) => {
-        let isMatExist = false;
-        for(let matiereEnseigne of enseignant.matieresEnseignes) {
-          if(req.body.matiere === matiereEnseigne._id.toString()) {
-            isMatExist = true;
-          }
-        }
-        console.log(req.body.matiere, isMatExist);
-        if (!enseignant || !isMatExist) {
-          return Promise.reject(
-            new Error(`No enseignant for this id: ${enseignantId}`)
-          );
-        }
-      })
-    ),
+    .withMessage("invalid enseignant id"),
+    // .custom((enseignantId, {req}) =>
+    //     EnseignantModel.findById(enseignantId).then((enseignant) => {
+    //     let isMatExist = false;
+    //     for(let matiereEnseigne of enseignant.matieresEnseignes) {
+    //       if(req.body.matiere === matiereEnseigne._id.toString()) {
+    //         isMatExist = true;
+    //       }
+    //     }
+    //     console.log(req.body.matiere, isMatExist);
+    //     if (!enseignant || !isMatExist) {
+    //       return Promise.reject(
+    //         new Error(`No enseignant for this id: ${enseignantId}`)
+    //       );
+    //     }
+    //   })
+    // ),
  check("semestre")
     .trim()
     .notEmpty()
