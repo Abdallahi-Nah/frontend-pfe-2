@@ -23,6 +23,11 @@ exports.createFilterObj = (req, res, next) => {
   if (req.params.enseignantId) {
     filterObject = { enseignant: req.params.enseignantId };
   }
+
+  if (req.params.matiereId) {
+    filterObject = { matiere: req.params.matiereId };
+  } 
+    
   req.filterObj = filterObject;
   next();
 };

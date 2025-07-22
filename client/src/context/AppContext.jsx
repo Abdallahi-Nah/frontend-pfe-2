@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Cookie from "cookie-universal";
 
 export const AppContext = createContext();
 
@@ -17,6 +18,9 @@ export const AppContextProvider = (props) => {
   const [isEducator, setIsEducator] = useState(true);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [emplois, setEmplois] = useState([]);
+  const [studentEmplois, setStudentEmplois] = useState([]);
+
+  const cookies = Cookie();
 
   // fetch all courses
   const fetchAllCourses = async () => {
@@ -96,10 +100,31 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  const getStudentMatieres = async () => {
+    try {
+       con
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const fetchStudentEmplois = async () => {
+    try {
+      const url = `${backendUrl}/emplois/get`;
+      console.log("url emplois : ", url);
+      const res = await axios.get(url);
+      console.log("res emplois : ", res);
+      setEmplois(res.data.data);
+    } catch (err) {
+      console.error("Erreur fetch emplois :", err);
+    }
+  };
+
   useEffect(() => {
     fetchAllCourses();
     fetchUserEnrolledCourses();
     fetchEmplois();
+    fetchStudentEmplois();
   }, []);
 
   const value = {
@@ -119,6 +144,9 @@ export const AppContextProvider = (props) => {
     emplois,
     setEmplois,
     fetchEmplois,
+    studentEmplois,
+    setStudentEmplois,
+    fetchStudentEmplois,
   };
 
   return (

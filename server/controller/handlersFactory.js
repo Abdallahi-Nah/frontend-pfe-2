@@ -25,68 +25,6 @@ exports.deleteOne = (Model, modelName = "") =>
     res.status(204).send();
   });
 
-// exports.updateOne = (Model, modelName = "") =>
-//   asyncHandler(async (req, res, next) => {
-
-//     const document = await Model.findByIdAndUpdate(req.params.id, req.body, {
-//       new: true,
-//     });
-
-//     if(modelName === "NotesMatieres") {
-
-//     }
-
-//     if (!document) {
-//       return next(
-//         new ApiErrors(`No document for this id ${req.params.id}`, 404)
-//       );
-//     }
-//     res.status(200).json({ data: document });
-//   });
-
-// exports.updateOne = (Model, modelName = "") =>
-//   asyncHandler(async (req, res, next) => {
-//     let document;
-
-//     if (modelName === "NotesMatieres") {
-//       // 1. Récupérer le document existant avant la mise à jour
-//       const existingDoc = await Model.findById(req.params.id);
-//       if (!existingDoc) {
-//         return next(new ApiErrors(`No document for this id ${req.params.id}`, 404));
-//       }
-
-//       // 2. Mettre à jour le document avec les nouvelles valeurs
-//       document = await Model.findByIdAndUpdate(req.params.id, req.body, {
-//         new: true,
-//       });
-
-//       // 3. Appeler la fonction de traitement spécifique
-//       const result = await handleNotesMatieresUpdate(document, req);
-
-//       // 4. Renvoyer tous les documents mis à jour dans la réponse
-//       return res.status(200).json({
-//         data: {
-//           updatedNoteMatiere: result.updatedDoc,
-//           updatedNotesModule: result.notesModules,
-//           updatedResultatsSemestre: result.resultatsSemestre,
-//           updatedResultatsAnnee: result.resultatsAnnee
-//         }
-//       });
-//     } else {
-//       // Cas général pour les autres modèles
-//       document = await Model.findByIdAndUpdate(req.params.id, req.body, {
-//         new: true,
-//       });
-
-//       if (!document) {
-//         return next(new ApiErrors(`No document for this id ${req.params.id}`, 404));
-//       }
-//       res.status(200).json({ data: document });
-//     }
-//   });
-
-// controllers/global/updateOne.js
-
 exports.updateOne = (Model, modelName = "") =>
   asyncHandler(async (req, res, next) => {
     let updatedDoc;
@@ -147,10 +85,15 @@ exports.createOne = (Model, modelName = "") =>
     });
   });
 
-exports.getOne = (Model) =>
+exports.getOne = (Model, modelName = "") =>
   asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    const document = await Model.findById(id);
+    let document;
+    if (modelName === "contrat") {
+      document = await Model.findOne({ etudiant: id });
+    } else {
+      document = await Model.findById(id);
+    }
     if (!document) {
       return next(new ApiErrors(`No document for this id ${id}`, 404));
     }

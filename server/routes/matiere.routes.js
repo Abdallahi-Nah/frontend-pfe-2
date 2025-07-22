@@ -19,7 +19,11 @@ const {
 
 const enseignantRoutes = require("./enseignant.router");
 
+const emploisRoutes = require("./emplois.routes");
+
 const router = express.Router({ mergeParams: true });
+
+router.use("/:matiereId/emplois", emploisRoutes);
 
 router.use('/:matiereId/enseignant', enseignantRoutes);
 

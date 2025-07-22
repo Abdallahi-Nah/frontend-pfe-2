@@ -20,6 +20,7 @@ const authEtudiantRouter = require("./routes/auth.etudiant.routes");
 const emplois = require("./routes/emplois.routes");
 const notesMatieres = require("./routes/notesMatieres.routes");
 const courseRouter = require("./routes/course.route.js");
+const contratPedagogiqueRouter = require("./routes/contrat.pedagogique.routes.js");
 
 const ApiErrors = require("./utils/ApiErrors.utils");
 const globalErrors = require("./my_middlewares/globalErrors");
@@ -46,6 +47,7 @@ app.use("/auth-etudiant", authEtudiantRouter);
 app.use("/emplois", emplois);
 app.use("/notes-matieres", notesMatieres);
 app.use("/course", courseRouter);
+app.use("/contrat", contratPedagogiqueRouter);
 
 app.use("*", (req, res, next) => {
   next(new ApiErrors(`ce url : ${req.originalUrl} n'existe pas`, 400));
