@@ -14,6 +14,18 @@ const Navbar = () => {
 
   const isLoginPage = location.pathname === "/login";
 
+  const handlLogoutStudent = () => {
+    try {
+      cookies.remove("token");
+      cookies.remove("id")
+      cookies.remove("role");
+
+      window.location.pathname = "/login";
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between px-4 sm:px-10 md:px-14 lg:px-36 border-b border-gray-500 py-4 bg-white">
       <img
@@ -33,6 +45,13 @@ const Navbar = () => {
           </>
         )}
 
+        {/* Si l'utilisateur est connecté et c'est un étudiant */}
+        {token && role === "enseignant" && (
+          <>
+            <Link to="/educator/emplois">Dashboard</Link>
+          </>
+        )}
+
         {/* Affichage du bouton Log In / Log Out */}
         {!token
           ? !isLoginPage && (
@@ -47,6 +66,7 @@ const Navbar = () => {
               <Link
                 to="/login"
                 className="bg-red-600 text-white px-5 py-2 rounded-full cursor-pointer"
+                onClick={handlLogoutStudent}
               >
                 Log Out
               </Link>

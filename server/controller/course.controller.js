@@ -1,17 +1,18 @@
 const Course = require("../models/Course.js");
+const factory = require('./handlersFactory');
 
-// Get All Courses
-exports.getAllCourses = async (req, res) => {
-  try {
-    const courses = await Course.find({ isPublished: true });
-      // .select(["-courseContent", "-enrolledStudents"]);
-      // .populate({ path: "educator" });
+exports.createFilterObj = (req, res, next) => {
+  let filterObject = {};
 
-    res.json({ success: true, courses });
-  } catch (error) {
-    res.json({ success: false, message: error.message });
+  if (req.params.enseignantId) {
+    filterObject = { educator: req.params.enseignantId };
   }
+
+  req.filterObj = filterObject;
+  next();
 };
+
+exports.getAllCourses = factory.getAll(Course); 
 
 // Get Course By Id
 exports.getCourseById = async (req, res) => {

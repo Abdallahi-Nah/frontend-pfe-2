@@ -278,11 +278,11 @@ import axios from "axios";
 const Emplois = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const emploisParPage = 1;
-  const { backendUrl, emplois, fetchEmplois } = useContext(AppContext);
+  const { backendUrl, studentEmplois, fetchStudentEmplois } = useContext(AppContext);
   const tableRef = useRef();
 
   useEffect(() => {
-    fetchEmplois();
+    fetchStudentEmplois();
   }, []);
 
   const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
@@ -296,7 +296,7 @@ const Emplois = () => {
 
   const normalizeHeure = (heure) => heure.replace("h:", ":");
 
-  const emploisParSpecialite = emplois.reduce((acc, emploi) => {
+  const emploisParSpecialite = studentEmplois.reduce((acc, emploi) => {
     const specialiteId = emploi.specialite?._id;
     if (!acc[specialiteId])
       acc[specialiteId] = { nom: emploi.specialite?.nom, emplois: [] };

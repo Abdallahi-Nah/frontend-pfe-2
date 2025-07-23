@@ -23,14 +23,18 @@ const {
 
 // const matiereRoutes = require('./matiere.routes');
 const emploisRoutes = require("./emplois.routes");
+const courseRoutes = require("./course.route");
 
 
 const router = express.Router({ mergeParams: true });
 
 // router.use('/:moduleId/matiere', matiereRoutes);
 router.use("/:enseignantId/emplois", emploisRoutes);
+router.use("/:enseignantId/course", courseRoutes);
 
-router.post("/create", createEnseignantValidator, createEnseignant);
+router.post("/create", 
+  createEnseignantValidator, 
+  createEnseignant);
 router.get("/get", getEnseignants);
 router.get('/get/:id', getEnseignantByIdValidator, getEnseignant);
 // router.get('/getModuleInfos/:id', getModuleByIdValidator, getModuleInfos);

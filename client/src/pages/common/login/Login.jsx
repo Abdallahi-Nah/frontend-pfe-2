@@ -26,35 +26,80 @@ const Login = () => {
 
   console.log(user.auth);
 
-  const handleLoginStudent = async () => {
+  // const handleLoginStudent = async () => {
+  //   try {
+  //     const res = await axios.post(
+  //       `${backendUrl}/auth-etudiant/login`,
+  //       formData
+  //     );
+  //     if (res.data) {
+  //       console.log(
+  //         "user : ",
+  //         res.data.data.nom,
+  //         res.data.data.emailUniv,
+  //         res.data.data.role,
+  //         res.data.data._id
+  //       );
+  //       cookies.set("token", res.data.token);
+  //       cookies.set("role", res.data.data.role);
+  //       cookies.set("id", res.data.data._id);
+  //       user.setAuth({
+  //         token: res.data.token,
+  //         nom: res.data.data.nom,
+  //         emailUniv: res.data.data.emailUniv,
+  //         role: res.data.data.role,
+  //         id: res.data.data._id,
+  //       });
+  //       navigate("/");
+  //     }
+  //   } catch (error) {
+  //     setAuthErr(true);
+  //     console.log(error);
+  //   }
+  // };
+
+  const handleLogin = async () => {
     try {
-      const res = await axios.post(
-        `${backendUrl}/auth-etudiant/login`,
-        formData
-      );
+      let res;
+
+      try {
+        res = await axios.post(`${backendUrl}/auth-etudiant/login`, formData);
+      } catch (errEtudiant) {
+        try {
+          res = await axios.post(`${backendUrl}/auth/login`, formData);
+        } catch (errEnseignant) {
+          setAuthErr(true);
+          console.error(errEnseignant);
+          return;
+        }
+      }
+
       if (res.data) {
-        console.log(
-          "user : ",
-          res.data.data.nom,
-          res.data.data.emailUniv,
-          res.data.data.role,
-          res.data.data._id
-        );
-        cookies.set("token", res.data.token);
-        cookies.set("role", res.data.data.role);
-        cookies.set("id", res.data.data._id);
+        const { token, data } = res.data;
+
+        console.log("user :", data.nom, data.emailUniv, data.role, data._id);
+
+        cookies.set("token", token);
+        cookies.set("role", data.role);
+        cookies.set("id", data._id);
+        cookies.set("nom", data.nom);
+        cookies.set("prenom", data.prenom);
+        cookies.set("profile", data.profileImg);
+
         user.setAuth({
-          token: res.data.token,
-          nom: res.data.data.nom,
-          emailUniv: res.data.data.emailUniv,
-          role: res.data.data.role,
-          id: res.data.data._id,
+          token,
+          nom: data.nom,
+          prenom: data.prenom,
+          emailUniv: data.emailUniv,
+          role: data.role,
+          id: data._id,
         });
+
         navigate("/");
       }
     } catch (error) {
       setAuthErr(true);
-      console.log(error);
+      console.error("Erreur inattendue :", error);
     }
   };
 
@@ -76,7 +121,7 @@ const Login = () => {
       setIsLoading(false);
     }, 1500);
 
-    await handleLoginStudent();
+    await handleLogin();
   };
 
   const toggleMode = () => {
@@ -152,7 +197,7 @@ const Login = () => {
                     marginTop: "5px",
                     fontWeight: "bold",
                     fontSize: "13px",
-                    color: "#ef4444"
+                    color: "#ef4444",
                   }}
                 >
                   Email Universitaire ou Password incorrect

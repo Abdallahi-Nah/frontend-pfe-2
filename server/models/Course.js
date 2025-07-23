@@ -42,6 +42,11 @@ const chapterSchema = new mongoose.Schema(
 
 const courseSchema = new mongoose.Schema(
   {
+    matiere: {
+      type: String,
+      ref: "Matiere",
+      // required: true,
+    },
     courseTitle: {
       type: String,
       required: true,

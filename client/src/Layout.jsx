@@ -19,6 +19,7 @@ import Attestation from "./pages/student/Attestation.jsx";
 import StudentMessage from "./pages/student/Message.jsx";
 import { ToastContainer } from "react-toastify";
 import RequireAuth from "./pages/auth/RequireAuth.jsx";
+import RequireEducatorAuth from "./pages/auth/RequireEducatorAuth.jsx";
 
 const Layout = () => {
   const isEducatorRoute = useMatch("/educator/*");
@@ -28,8 +29,11 @@ const Layout = () => {
       <ToastContainer />
       {!isEducatorRoute && <Navbar />}
       <Routes>
+        {/* Common */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+
+        {/* Student */}
         <Route element={<RequireAuth />}>
           <Route path="/my-enrollments" element={<MyEnrollments />} />
           <Route path="/player/:courseId" element={<Player />} />
@@ -40,12 +44,16 @@ const Layout = () => {
             <Route path="messageries" element={<StudentMessage />} />
           </Route>
         </Route>
-        <Route path="/educator" element={<Educator />}>
-          <Route path="emplois" element={<Emplois />} />
-          <Route path="my-courses" element={<MyCourses />} />
-          <Route path="add-course" element={<AddCourse />} />
-          <Route path="add-result" element={<AddResult />} />
-          <Route path="messageries" element={<Message />} />
+
+        {/* Educator */}
+        <Route element={<RequireEducatorAuth />}>
+          <Route path="/educator" element={<Educator />}>
+            <Route path="emplois" element={<Emplois />} />
+            <Route path="my-courses" element={<MyCourses />} />
+            <Route path="add-course" element={<AddCourse />} />
+            <Route path="add-result" element={<AddResult />} />
+            <Route path="messageries" element={<Message />} />
+          </Route>
         </Route>
       </Routes>
     </div>

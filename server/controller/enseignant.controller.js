@@ -187,6 +187,7 @@ exports.activateLoggedEnseignant = asyncHandler(async (req, res, next) => {
 // };
 
 // Add new course
+
 exports.addCourse = async (req, res) => {
   try {
     console.log("BODY:", req.body);
@@ -201,12 +202,14 @@ exports.addCourse = async (req, res) => {
     try {
       courseData = JSON.parse(req.body.courseData);
     } catch (err) {
-      console.error("❌ JSON parse error:", err.message);
+      console.error("JSON parse error:", err.message);
       return res.status(400).json({ success: false, message: "Invalid course data format" });
     }
 
     // Ajout d'un éducateur par défaut (à adapter si auth activée plus tard)
-    const educatorId = "6807995415366c19744d377a";
+    // const educatorId = "6807995415366c19744d377a";
+    console.log("educator : ", req.cookies.id);
+    const educatorId = req.cookies.id;
     courseData.educator = educatorId;
 
     // Upload image to Cloudinary
@@ -214,7 +217,7 @@ exports.addCourse = async (req, res) => {
     try {
       imageUpload = await cloudinary.uploader.upload(req.file.path);
     } catch (uploadError) {
-      console.error("❌ Cloudinary upload error:", uploadError.message);
+      console.error("Cloudinary upload error:", uploadError.message);
       return res.status(500).json({ success: false, message: "Image upload failed" });
     }
 
@@ -222,10 +225,10 @@ exports.addCourse = async (req, res) => {
 
     const newCourse = await Course.create(courseData);
 
-    console.log("✅ Course created:", newCourse._id);
+    console.log("Course created:", newCourse._id);
     res.status(201).json({ success: true, message: "Cours ajouté", courseId: newCourse._id });
   } catch (error) {
-    console.error("❌ Error in addCourse:", error);
+    console.error("Error in addCourse:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

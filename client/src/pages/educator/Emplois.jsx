@@ -46,6 +46,7 @@ const Emplois = () => {
   const normalizeHeure = (heure) => heure.replace("h:", ":");
 
   const emploisParSpecialite = emplois.reduce((acc, emploi) => {
+    console.log("emplois res : ", emploi);
     const specialiteId = emploi.specialite?._id;
     if (!acc[specialiteId])
       acc[specialiteId] = { nom: emploi.specialite?.nom, emplois: [] };

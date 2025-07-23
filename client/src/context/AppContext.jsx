@@ -21,19 +21,24 @@ export const AppContextProvider = (props) => {
   const [studentEmplois, setStudentEmplois] = useState([]);
 
   const cookies = Cookie();
+  const idEtud = cookies.get("id");
 
   // fetch all courses
   const fetchAllCourses = async () => {
-    try {
-      const { data } = await axios.get(backendUrl + "/course/all");
+    if (cookies.get("role") === "enseignant") {
+      try {
+        const { data } = await axios.get(
+          `${backendUrl}/enseignant/${cookies.get("id")}/course/all`
+        );
 
-      if (data.success) {
-        setAllCourses(data.courses);
-      } else {
-        toast.error(data.message);
+        if (data.data) {
+          setAllCourses(data.data);
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
       }
-    } catch (error) {
-      toast.error(error.message);
     }
   };
 
@@ -89,34 +94,42 @@ export const AppContextProvider = (props) => {
   };
 
   const fetchEmplois = async () => {
-    try {
-      const url = `${backendUrl}/emplois/get`;
-      console.log("url emplois : ", url);
-      const res = await axios.get(url);
-      console.log("res emplois : ", res);
-      setEmplois(res.data.data);
-    } catch (err) {
-      console.error("Erreur fetch emplois :", err);
+    if (cookies.get("role") === "enseignant") {
+      try {
+        const url = `${backendUrl}/enseignant/${cookies.get("id")}/emplois/get`;
+        console.log("url emplois : ", url);
+        const res = await axios.get(url);
+        console.log("res emplois : ", res);
+        setEmplois(res.data.data);
+      } catch (err) {
+        console.error("Erreur fetch emplois :", err);
+      }
     }
   };
 
-  const getStudentMatieres = async () => {
-    try {
-       con
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const fetchStudentEmplois = async () => {
     try {
-      const url = `${backendUrl}/emplois/get`;
-      console.log("url emplois : ", url);
-      const res = await axios.get(url);
-      console.log("res emplois : ", res);
-      setEmplois(res.data.data);
-    } catch (err) {
-      console.error("Erreur fetch emplois :", err);
+      const res = await axios.get(`${backendUrl}/contrat/get/${idEtud}`);
+      const matieresAValides = res.data.data.matieresAValides || [];
+
+      console.log("Matières à valider :", matieresAValides);
+
+      // Récupérer les emplois pour chaque matière
+      const emploisPromises = matieresAValides.map((matiere) =>
+        axios.get(`${backendUrl}/matiere/${matiere._id}/emplois/get`)
+      );
+
+      const emploisResponses = await Promise.all(emploisPromises);
+
+      // Extraire les données d'emploi de chaque réponse
+      const allEmplois = emploisResponses.flatMap(
+        (response) => response.data.data
+      );
+
+      console.log("Tous les emplois :", allEmplois);
+      setStudentEmplois(allEmplois);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des emplois :", error);
     }
   };
 
