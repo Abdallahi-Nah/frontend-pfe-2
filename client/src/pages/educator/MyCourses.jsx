@@ -3,7 +3,7 @@ import { AppContext } from "../../context/AppContext";
 import Loading from "../../components/student/Loading";
 
 const MyCourses = () => {
-  const { currency, allCourses, calculateCourseDuration } =
+  const { currency, allCourses, fetchAllCourses, calculateCourseDuration } =
     useContext(AppContext);
 
   const [courses, setCourses] = useState(null);
@@ -12,10 +12,21 @@ const MyCourses = () => {
     setCourses(allCourses);
   };
 
+  // useEffect(() => {
+  //   // fetchEducatorCourses();
+  //   fetchAllCourses();
+  //   setCourses(allCourses);
+  // }, []);
   useEffect(() => {
-    // fetchEducatorCourses();
-    setCourses(allCourses);
+    fetchAllCourses();
+  }, []);
+
+  useEffect(() => {
+    if (allCourses.length > 0) {
+      setCourses(allCourses);
+    }
   }, [allCourses]);
+
 
   return courses ? (
     <div className="h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">

@@ -17,7 +17,7 @@ const {
   deleteMatiereValidator,
 } = require("../utils/validators/matiereValidator");
 
-const enseignantRoutes = require("./enseignant.router");
+// const enseignantRoutes = require("./enseignant.router");
 
 const emploisRoutes = require("./emplois.routes");
 
@@ -25,7 +25,7 @@ const router = express.Router({ mergeParams: true });
 
 router.use("/:matiereId/emplois", emploisRoutes);
 
-router.use('/:matiereId/enseignant', enseignantRoutes);
+// router.use('/:matiereId/enseignant', enseignantRoutes);
 
 router.post("/create", setModuleIdToBody, createMatiereValidator, createMatiere);
 router.get("/get", createFilterObj, getAllMatieres);

@@ -5,6 +5,7 @@ import { assets } from "../../assets/assets";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-toastify";
 import axios from "axios";
+import Cookie from "cookie-universal";
 
 const AddCourse = () => {
   const { backendUrl } = useContext(AppContext);
@@ -22,6 +23,22 @@ const AddCourse = () => {
     lectureUrl: "",
     isPreviewFree: true,
   });
+  const [matiere, setMatiere] = useState("");
+  const cookies = Cookie();
+
+  const { fetchEmplois, emplois } = useContext(AppContext);
+
+  console.log("les matieres : ", emplois);
+
+  const matieresUniques = [
+    ...new Map(
+      emplois.map((emploi) => [emploi.matiere._id, emploi.matiere])
+    ).values(),
+  ];
+
+  useEffect(() => {
+    fetchEmplois();
+  }, []);
 
   const handleChapter = (action, chapterId) => {
     if (action === "add") {
@@ -118,10 +135,17 @@ const AddCourse = () => {
       return;
     }
 
+    // const courseData = {
+    //   courseTitle,
+    //   courseDescription: quillRef.current.root.innerHTML,
+    //   courseContent: chapters,
+    // };
     const courseData = {
-      courseTitle,
+      matiere,
+      courseTitle: matieresUniques.find((m) => m._id === matiere)?.nom || "",
       courseDescription: quillRef.current.root.innerHTML,
       courseContent: chapters,
+      educator: cookies.get("id"),
     };
 
     const formData = new FormData();
@@ -133,10 +157,21 @@ const AddCourse = () => {
     }
 
     try {
+      // const { data } = await axios.post(
+      //   backendUrl + "/enseignant/add-course",
+      //   formData
+      // );
       const { data } = await axios.post(
         backendUrl + "/enseignant/add-course",
-        formData
+        formData,
+        {
+          withCredentials: true, // ✅ Très important pour que le cookie (ex: JWT) soit inclus
+          headers: {
+            "Content-Type": "multipart/form-data", // car tu envoies des fichiers via formData
+          },
+        }
       );
+
 
       if (data.success) {
         toast.success(data.message);
@@ -173,7 +208,7 @@ const AddCourse = () => {
         className="flex flex-col gap-4 max-w-md w-full text-gray-500"
       >
         {/* Input Titre */}
-        <div className="flex flex-col gap-1">
+        {/* <div className="flex flex-col gap-1">
           <p>Titre du cours</p>
           <input
             onChange={(e) => setCourseTitle(e.target.value)}
@@ -183,7 +218,26 @@ const AddCourse = () => {
             className="outline-none md:py-2.5 py-2 px-2 rounded border border-gray-500"
             required
           />
-        </div>
+        </div> */}
+        <select
+          onChange={(e) => setMatiere(e.target.value)}
+          value={matiere}
+          required
+          className="outline-none md:py-2.5 py-2 px-2 rounded border border-gray-500"
+        >
+          <option value="" disabled className="cursor-pointer">
+            -- Sélectionnez une matière --
+          </option>
+          {matieresUniques.map((matiere) => (
+            <option
+              className="cursor-pointer"
+              key={matiere._id}
+              value={matiere._id}
+            >
+              {matiere.nom}
+            </option>
+          ))}
+        </select>
 
         {/* Description */}
         <div className="flex flex-col gap-1">

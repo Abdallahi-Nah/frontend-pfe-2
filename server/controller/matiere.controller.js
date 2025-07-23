@@ -18,9 +18,12 @@ exports.createFilterObj = (req, res, next) => {
   if (req.params.moduleId) {
     filterObject = { module: req.params.moduleId };
   }
+
   req.filterObj = filterObject;
   next();
 };
+
+
 
 exports.getAllMatieres = factory.getAll(MatiereModel);
 

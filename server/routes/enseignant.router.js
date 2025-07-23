@@ -24,6 +24,7 @@ const {
 // const matiereRoutes = require('./matiere.routes');
 const emploisRoutes = require("./emplois.routes");
 const courseRoutes = require("./course.route");
+const matieresRoutes = require("./matiere.routes");
 
 
 const router = express.Router({ mergeParams: true });
@@ -31,6 +32,7 @@ const router = express.Router({ mergeParams: true });
 // router.use('/:moduleId/matiere', matiereRoutes);
 router.use("/:enseignantId/emplois", emploisRoutes);
 router.use("/:enseignantId/course", courseRoutes);
+router.use("/:enseignantId/matiere", matieresRoutes);
 
 router.post("/create", 
   createEnseignantValidator, 

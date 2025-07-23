@@ -1,8 +1,8 @@
-
 "use client";
 
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { useState } from "react";
+import { AppContext } from "../../context/AppContext";
 
 export default function AddResult() {
   const [formData, setFormData] = useState({
