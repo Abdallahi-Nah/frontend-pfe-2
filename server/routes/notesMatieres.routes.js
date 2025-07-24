@@ -7,6 +7,7 @@ const {
   getOneNotesMatiere,
   deleteNotesMatieres,
   getNotesMatieresByEtudiant,
+  getNoteByType,
 } = require("../controller/notesMatieres.controller");
 const {
   getNotesSemestreByEtudiant,
@@ -20,11 +21,20 @@ const {
 
 const router = express.Router({ mergeParams: true });
 
-router.post("/create", createNotesMatiereValidator, createNotesMatiere);
+router.post("/create", 
+  // createNotesMatiereValidator, 
+  createNotesMatiere);
 router.put("/update/:id", updateNotesMatiereValidator, updateNotesMatiere);
 router.get("/get", getAllNotesMatieres);
 router.get("/get/:id", getNotesMatiereByIdValidator, getOneNotesMatiere);
-router.get("/get-notes-matieres-by-etudiant/:etudiant", getNotesSemestreByEtudiant);
+router.get(
+  "/get-notes-matieres-by-etudiant/:etudiant",
+  getNotesSemestreByEtudiant
+);
+router.get(
+  "/note/:specialiteId/:moduleId/:matiereId/:etudiantId/:type",
+  getNoteByType
+);
 router.delete("/delete/:id", deleteNotesMatiereValidator, deleteNotesMatieres);
 
 module.exports = router;

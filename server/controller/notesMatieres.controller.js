@@ -14,3 +14,30 @@ exports.getAllNotesMatieres = factory.getAll(NotesMatieres);
 exports.deleteNotesMatieres = factory.deleteOne(NotesMatieres);
 
 exports.getNotesMatieresByEtudiant = factory.getNotesMatieresByEtudiant(NotesMatieres);
+
+exports.getNoteByType = asyncHandler(async (req, res, next) => {
+  const { specialiteId, moduleId, matiereId, etudiantId, type } = req.params;
+
+  const validTypes = ["tp", "cc", "ecrit", "ratt"];
+  if (!validTypes.includes(type)) {
+    return next(new ApiErrors("Type de note invalide", 400));
+  }
+
+  const noteDoc = await NotesMatieres.findOne({
+    specialite: specialiteId,
+    module: moduleId,
+    matiere: matiereId,
+    etudiant: etudiantId,
+  }).select(type);
+
+  if (!noteDoc) {
+    return next(new ApiErrors("Note non trouvée", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      value: noteDoc[type],
+    },
+  });
+});

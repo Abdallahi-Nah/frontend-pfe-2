@@ -214,6 +214,8 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
+
 
 // Déclaration du composant FormField
 const FormField = ({ children, label }) => (
@@ -288,14 +290,16 @@ const AddResult = () => {
     matiere: "",
     etudiant: "",
     type: "",
-    note: "",
+    note: 0,
   });
+
+  console.log("Form data submitted:", formData);
 
   const typeOptions = [
     { label: "TP", value: "tp" },
     { label: "Contrôle Continu", value: "cc" },
-    { label: "Examen", value: "examen" },
-    { label: "Rattrapage", value: "rattrapage" },
+    { label: "Examen", value: "ecrit" },
+    { label: "Rattrapage", value: "ratt" },
   ];
 
   useEffect(() => {
@@ -336,6 +340,31 @@ const AddResult = () => {
     }
   }, [formData.matiere]);
 
+  useEffect(() => {
+    const { specialite, module, matiere, etudiant, type } = formData;
+
+    if (specialite && module && matiere && etudiant && type) {
+      axios
+        .get(
+          `http://localhost:4000/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`
+        )
+        .then((res) => {
+          const noteValue = res.data.note ?? 0; // si undefined/null → 0
+          setFormData((prev) => ({ ...prev, note: noteValue }));
+        })
+        .catch((err) => {
+          console.warn("Note introuvable, on met 0 par défaut");
+          setFormData((prev) => ({ ...prev, note: 0 }));
+        });
+    }
+  }, [
+    formData.specialite,
+    formData.module,
+    formData.matiere,
+    formData.etudiant,
+    formData.type,
+  ]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -343,10 +372,43 @@ const AddResult = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log("Form data submitted:", formData);
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data submitted:", formData);
+
+    const { specialite, module, matiere, etudiant, type, note } = formData;
+
+    if (!specialite || !module || !matiere || !etudiant || !type) {
+      toast.error("Veuillez remplir tous les champs.");
+      return;
+    }
+
+    try {
+      const payload = {
+        specialite,
+        module,
+        matiere,
+        etudiant,
+        [type]: parseFloat(note), // clé dynamique (tp, cc, ecrit, ratt)
+      };
+
+      const response = await axios.post(
+        "http://localhost:4000/notes-matieres/create",
+        payload
+      );
+
+      console.log("Note enregistrée :", response.data);
+      toast.success("✅ Note enregistrée avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement :", error);
+      toast.error("❌ Échec de l'enregistrement !");
+    }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white min-h-screen">

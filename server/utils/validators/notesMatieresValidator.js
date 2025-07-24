@@ -1,7 +1,7 @@
 const { check } = require("express-validator");
 const validationMiddleware = require("../../my_middlewares/validationMiddleware");
 const MatiereModel = require("../../models/matiere.model");
-const EtudiantModel = require("../../models/etudiant.model");
+const Etudiant = require("../../models/etudiant.model");
 const SpecialiteModel = require("../../models/specialite.model");
 const ModuleModel = require("../../models/module.model");
 
@@ -42,16 +42,16 @@ exports.createNotesMatiereValidator = [
     .notEmpty()
     .withMessage("etudiant id must be not empty")
     .isMongoId()
-    .withMessage("invalid etudiant id")
-    .custom((etudiantId) =>
-      EtudiantModel.findById(etudiantId).then((etudiant) => {
-        if (!etudiant) {
-          return Promise.reject(
-            new Error(`No etudiant for this id: ${etudiantId}`)
-          );
-        }
-      })
-    ),
+    .withMessage("invalid etudiant id"),
+    // .custom((etudiantId) =>
+    //   Etudiant.findById(etudiantId).then((etudiant) => {
+    //     if (!etudiant) {
+    //       return Promise.reject(
+    //         new Error(`No etudiant for this id: ${etudiantId}`)
+    //       );
+    //     }
+    //   })
+    // ),
   check("matiere")
     .trim()
     .notEmpty()
@@ -128,16 +128,16 @@ exports.updateNotesMatiereValidator = [
     .notEmpty()
     .withMessage("etudiant id must be not empty")
     .isMongoId()
-    .withMessage("invalid etudiant id")
-    .custom((etudiantId) =>
-      EtudiantModel.findById(etudiantId).then((etudiant) => {
-        if (!etudiant) {
-          return Promise.reject(
-            new Error(`No etudiant for this id: ${etudiantId}`)
-          );
-        }
-      })
-    ),
+    .withMessage("invalid etudiant id"),
+    // .custom((etudiantId) =>
+    //   EtudiantModel.findById(etudiantId).then((etudiant) => {
+    //     if (!etudiant) {
+    //       return Promise.reject(
+    //         new Error(`No etudiant for this id: ${etudiantId}`)
+    //       );
+    //     }
+    //   })
+    // ),
   check("matiere")
     .trim()
     .notEmpty()
