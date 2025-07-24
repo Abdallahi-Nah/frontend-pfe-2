@@ -27,11 +27,16 @@ router.use("/:matiereId/emplois", emploisRoutes);
 
 // router.use('/:matiereId/enseignant', enseignantRoutes);
 
-router.post("/create", setModuleIdToBody, createMatiereValidator, createMatiere);
+router.post(
+  "/create",
+  setModuleIdToBody,
+  createMatiereValidator,
+  createMatiere
+);
 router.get("/get", createFilterObj, getAllMatieres);
-router.get('/get/:id', getMatiereByIdValidator, getMatiereById);
-router.get('/getMatiereInfos/:id', getMatiereByIdValidator, getMatiereInfos);
-router.put('/update/:id', updateMatiereValidator, updateMatiere);
-router.delete('/delete/:id', deleteMatiereValidator, deleteSpecificMatiere);
+router.get("/get/:id", getMatiereByIdValidator, getMatiereById);
+router.get("/getMatiereInfos/:id", getMatiereByIdValidator, getMatiereInfos);
+router.put("/update/:id", updateMatiereValidator, updateMatiere);
+router.delete("/delete/:id", deleteMatiereValidator, deleteSpecificMatiere);
 
 module.exports = router;

@@ -25,19 +25,19 @@ const contratPedagogiqueSchema = new mongoose.Schema(
 // Mongoose query middleware
 contratPedagogiqueSchema.pre(/^find/, function (next) {
   this.populate([
-      {
-        path: 'specialite',
-        select: 'nom'
-      },
-      {
-        path: 'etudiant',
-        select: 'nom prenom'
-      },
-      {
-        path: 'matieresAValides',
-        select: 'nom',
-      }
-    ]);
+    {
+      path: "specialite",
+      select: "nom",
+    },
+    {
+      path: "etudiant",
+      select: "nom prenom matricule",
+    },
+    {
+      path: "matieresAValides",
+      select: "nom",
+    },
+  ]);
   next();
 });
 

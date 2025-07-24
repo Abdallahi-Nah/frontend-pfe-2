@@ -5,3 +5,6 @@ exports.getContratPedagogique = factory.getOne(
   contratPedagogiqueModel,
   "contrat"
 );
+
+
+

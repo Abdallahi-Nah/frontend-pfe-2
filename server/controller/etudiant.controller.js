@@ -1,19 +1,22 @@
-const asyncHandler = require('express-async-handler');
-const { v4: uuidv4 } = require('uuid');
-const sharp = require('sharp');
-const bcrypt = require('bcryptjs');
+const asyncHandler = require("express-async-handler");
+const { v4: uuidv4 } = require("uuid");
+const sharp = require("sharp");
+const bcrypt = require("bcryptjs");
 
-const factory = require('./handlersFactory');
-const ApiError = require('../utils/ApiErrors.utils');
-const { uploadSingleImage } = require('../my_middlewares/uploadImageMiddleware');
-const createToken = require('../utils/createToken');
-const Etudiant = require('../models/etudiant.model');
-const ContratPedagogique = require('../models/contratPedagogique.model');
-const Module = require('../models/module.model');
-const Matiere = require('../models/matiere.model');
+const factory = require("./handlersFactory");
+const ApiError = require("../utils/ApiErrors.utils");
+const {
+  uploadSingleImage,
+} = require("../my_middlewares/uploadImageMiddleware");
+const createToken = require("../utils/createToken");
+const Etudiant = require("../models/etudiant.model");
+const contratPedagogiqueModel = require("../models/contratPedagogique.model");
+const ContratPedagogique = require("../models/contratPedagogique.model");
+const Module = require("../models/module.model");
+const Matiere = require("../models/matiere.model");
 
 // Upload single image
-exports.uploadEnseignantImage = uploadSingleImage('profileImg');
+exports.uploadEnseignantImage = uploadSingleImage("profileImg");
 
 // Image processing
 exports.resizeImage = asyncHandler(async (req, res, next) => {
@@ -22,7 +25,7 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
   if (req.file) {
     await sharp(req.file.buffer)
       .resize(600, 600)
-      .toFormat('jpeg')
+      .toFormat("jpeg")
       .jpeg({ quality: 95 })
       .toFile(`uploads/etudiants/${filename}`);
 
@@ -42,7 +45,7 @@ exports.getEtudiant = factory.getOne(Etudiant);
 exports.updateEtudiant = asyncHandler(async (req, res, next) => {
   // 1. Récupérer l'étudiant avant modification pour vérifier si la spécialité change
   const oldEtudiant = await Etudiant.findById(req.params.id);
-  
+
   // 2. Mettre à jour l'étudiant
   const document = await Etudiant.findByIdAndUpdate(
     req.params.id,
@@ -56,7 +59,7 @@ exports.updateEtudiant = asyncHandler(async (req, res, next) => {
       profileImg: req.body.profileImg,
       matricule: req.body.matricule,
       specialite: req.body.specialite, // Ajout du champ specialite
-      role: "etudiant"
+      role: "etudiant",
     },
     { new: true }
   );
@@ -66,45 +69,50 @@ exports.updateEtudiant = asyncHandler(async (req, res, next) => {
   }
 
   // 3. Vérifier si la spécialité a été modifiée
-  if (req.body.specialite && oldEtudiant.specialite.toString() !== req.body.specialite) {
+  if (
+    req.body.specialite &&
+    oldEtudiant.specialite.toString() !== req.body.specialite
+  ) {
     // 4. Trouver le contrat pédagogique existant
-    const contrat = await ContratPedagogique.findOne({ etudiant: req.params.id });
-    
+    const contrat = await ContratPedagogique.findOne({
+      etudiant: req.params.id,
+    });
+
     if (contrat) {
       // 5. Récupérer les nouveaux modules et matières pour la nouvelle spécialité
       const modules = await Module.find({ specialite: req.body.specialite });
-      const modulesIds = modules.map(module => module._id);
-      
+      const modulesIds = modules.map((module) => module._id);
+
       let matieresIds = [];
       for (const moduleId of modulesIds) {
         const matieres = await Matiere.find({ module: moduleId });
-        matieresIds.push(...matieres.map(matiere => matiere._id));
+        matieresIds.push(...matieres.map((matiere) => matiere._id));
       }
 
       // 6. Mettre à jour le contrat pédagogique
       contrat.specialite = req.body.specialite;
       contrat.matieresAValides = matieresIds;
       await contrat.save();
-      
-      console.log('Contrat pédagogique mis à jour avec les nouvelles matières');
+
+      console.log("Contrat pédagogique mis à jour avec les nouvelles matières");
     } else {
       // 7. Si aucun contrat existant, en créer un nouveau (comme dans createOne)
       const modules = await Module.find({ specialite: req.body.specialite });
-      const modulesIds = modules.map(module => module._id);
-      
+      const modulesIds = modules.map((module) => module._id);
+
       let matieresIds = [];
       for (const moduleId of modulesIds) {
         const matieres = await Matiere.find({ module: moduleId });
-        matieresIds.push(...matieres.map(matiere => matiere._id));
+        matieresIds.push(...matieres.map((matiere) => matiere._id));
       }
 
       await ContratPedagogique.create({
         specialite: req.body.specialite,
         etudiant: req.params.id,
-        matieresAValides: matieresIds
+        matieresAValides: matieresIds,
       });
-      
-      console.log('Nouveau contrat pédagogique créé');
+
+      console.log("Nouveau contrat pédagogique créé");
     }
   }
 
@@ -162,6 +170,7 @@ exports.deleteEtudiant = factory.deleteOne(Etudiant, "Etudiant");
 // };
 
 // get Student Course Progress
+
 exports.getUserCourseProgress = async (req, res) => {
   try {
     const userId = req.auth.userId;
@@ -175,6 +184,7 @@ exports.getUserCourseProgress = async (req, res) => {
 };
 
 // Add student ratings to course
+
 // export const addUserRating = async (req, res) => {
 //   const userId = req.auth.userId;
 //   const { courseId, rating } = req.body;
@@ -216,3 +226,41 @@ exports.getUserCourseProgress = async (req, res) => {
 //     return res.json({ success: false, message: error.message });
 //   }
 // };
+
+exports.getUserStudentsByMatiere = async (req, res) => {
+  try {
+    //
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getEtudiantsByMatiereId = async (req, res) => {
+  try {
+    const { matiereId } = req.params;
+
+    const contrats = await contratPedagogiqueModel
+      .find({
+        matieresAValides: matiereId,
+      })
+      .populate({
+        path: "etudiant",
+        select: "nom prenom matricule specialite",
+        populate: {
+          path: "specialite",
+          select: "nom",
+        },
+      });
+
+    const etudiants = contrats.map((c) => c.etudiant);
+
+    res.status(200).json({
+      status: "success",
+      results: etudiants.length,
+      data: etudiants,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des étudiants :", error);
+    res.status(500).json({ status: "error", message: "Erreur serveur" });
+  }
+};
