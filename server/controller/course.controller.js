@@ -35,3 +35,5 @@ exports.getCourseById = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+exports.deleteCourse = factory.deleteOne(Course);

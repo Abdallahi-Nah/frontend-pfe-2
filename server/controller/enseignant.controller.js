@@ -233,6 +233,71 @@ exports.addCourse = async (req, res) => {
   }
 };
 
+exports.updateCourse = async (req, res) => {
+  try {
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
+    const { id } = req.params;
+
+    // Vérification de l'existence du cours
+    const existingCourse = await Course.findById(id);
+    if (!existingCourse) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Cours non trouvé" });
+    }
+
+    // Parsing sécurisé
+    let courseData;
+    try {
+      courseData = JSON.parse(req.body.courseData);
+    } catch (err) {
+      console.error("Erreur de parsing JSON:", err.message);
+      return res
+        .status(400)
+        .json({ success: false, message: "Format de données invalide" });
+    }
+
+    // Récupérer l'éducateur depuis les cookies
+    const educatorId = req.cookies.id;
+    courseData.educator = educatorId;
+
+    // Upload image uniquement si un nouveau fichier est présent
+    if (req.file) {
+      try {
+        const upload = await cloudinary.uploader.upload(req.file.path);
+        courseData.courseThumbnail = upload.secure_url;
+      } catch (uploadError) {
+        console.error("Erreur Cloudinary:", uploadError.message);
+        return res
+          .status(500)
+          .json({ success: false, message: "Échec de l’upload de l’image" });
+      }
+    } else {
+      // garder l'image précédente
+      courseData.courseThumbnail = existingCourse.courseThumbnail;
+    }
+
+    // Mise à jour
+    const updatedCourse = await Course.findByIdAndUpdate(id, courseData, {
+      new: true,
+    });
+
+    console.log("Course updated:", updatedCourse._id);
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Cours mis à jour",
+        course: updatedCourse,
+      });
+  } catch (error) {
+    console.error("Erreur dans updateCourse:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 
 // Get Educator Courses
 exports.getEducatorCourses = async (req, res) => {

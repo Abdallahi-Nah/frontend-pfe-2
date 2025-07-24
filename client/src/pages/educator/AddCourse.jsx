@@ -6,6 +6,7 @@ import { AppContext } from "../../context/AppContext";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Cookie from "cookie-universal";
+import { useLocation, useParams } from "react-router-dom";
 
 const AddCourse = () => {
   const { backendUrl } = useContext(AppContext);
@@ -25,6 +26,40 @@ const AddCourse = () => {
   });
   const [matiere, setMatiere] = useState("");
   const cookies = Cookie();
+  const param = useParams();
+
+  const idCourse = param.idCourse;
+
+  // const getCourseById = async () => {
+  //   try {
+  //     const res = await axios.get(`${backendUrl}/course/${idCourse}`);
+  //     if(res.data.success) {
+  //       console.log("course data : ", res.data.courseData);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  const getCourseById = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/course/${idCourse}`);
+      if (res.data.success) {
+        const course = res.data.courseData;
+
+        setCourseTitle(course.courseTitle);
+        setMatiere(course.matiere);
+        setImage(course.courseThumbnail);
+        setChapters(course.courseContent || []);
+
+        if (quillRef.current) {
+          quillRef.current.root.innerHTML = course.courseDescription;
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const { fetchEmplois, emplois } = useContext(AppContext);
 
@@ -38,6 +73,7 @@ const AddCourse = () => {
 
   useEffect(() => {
     fetchEmplois();
+    getCourseById();
   }, []);
 
   const handleChapter = (action, chapterId) => {
@@ -136,17 +172,23 @@ const AddCourse = () => {
     }
 
     // const courseData = {
-    //   courseTitle,
+    //   matiere,
+    //   courseTitle: matieresUniques.find((m) => m._id === matiere)?.nom || "",
     //   courseDescription: quillRef.current.root.innerHTML,
     //   courseContent: chapters,
+    //   educator: cookies.get("id"),
     // };
+
     const courseData = {
       matiere,
-      courseTitle: matieresUniques.find((m) => m._id === matiere)?.nom || "",
+      courseTitle: idCourse
+        ? courseTitle 
+        : matieresUniques.find((m) => m._id === matiere)?.nom || "", 
       courseDescription: quillRef.current.root.innerHTML,
       courseContent: chapters,
       educator: cookies.get("id"),
     };
+
 
     const formData = new FormData();
     formData.append("courseData", JSON.stringify(courseData));
@@ -157,24 +199,35 @@ const AddCourse = () => {
     }
 
     try {
-      // const { data } = await axios.post(
-      //   backendUrl + "/enseignant/add-course",
-      //   formData
-      // );
-      const { data } = await axios.post(
-        backendUrl + "/enseignant/add-course",
-        formData,
-        {
-          withCredentials: true, // ✅ Très important pour que le cookie (ex: JWT) soit inclus
-          headers: {
-            "Content-Type": "multipart/form-data", // car tu envoies des fichiers via formData
-          },
-        }
-      );
+      let data;
+      if (idCourse) {
+        data = await axios.put(
+          backendUrl + "/enseignant/update-course/" + idCourse,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        data = await axios.post(
+          backendUrl + "/enseignant/add-course",
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      }
 
+      console.log("data course updated : ", data.data);
 
-      if (data.success) {
-        toast.success(data.message);
+      if (data.data.success || data.success) {
+        toast.success(data.data.message || data.message);
         setCourseTitle("");
         setImage(null);
         setChapters([]);
@@ -207,18 +260,6 @@ const AddCourse = () => {
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 max-w-md w-full text-gray-500"
       >
-        {/* Input Titre */}
-        {/* <div className="flex flex-col gap-1">
-          <p>Titre du cours</p>
-          <input
-            onChange={(e) => setCourseTitle(e.target.value)}
-            value={courseTitle}
-            type="text"
-            placeholder="Type here"
-            className="outline-none md:py-2.5 py-2 px-2 rounded border border-gray-500"
-            required
-          />
-        </div> */}
         <select
           onChange={(e) => setMatiere(e.target.value)}
           value={matiere}
@@ -266,9 +307,20 @@ const AddCourse = () => {
               accept="image/*"
               hidden
             />
-            <img
+            {/* <img
               className="max-h-10"
               src={image ? URL.createObjectURL(image) : null}
+              alt=""
+            /> */}
+            <img
+              className="max-h-10"
+              src={
+                image
+                  ? typeof image === "string"
+                    ? image
+                    : URL.createObjectURL(image)
+                  : null
+              }
               alt=""
             />
           </div>
@@ -439,7 +491,7 @@ const AddCourse = () => {
           type="submit"
           className="bg-black text-white w-max py-2.5 px-8 rounded my-4 cursor-pointer"
         >
-          Ajouter un cours
+          Enregistrer
         </button>
       </form>
     </div>

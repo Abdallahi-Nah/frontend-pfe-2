@@ -51,6 +51,7 @@ const Layout = () => {
             <Route path="emplois" element={<Emplois />} />
             <Route path="my-courses" element={<MyCourses />} />
             <Route path="add-course" element={<AddCourse />} />
+            <Route path="update-course/:idCourse" element={<AddCourse />} />
             <Route path="add-result" element={<AddResult />} />
             <Route path="messageries" element={<Message />} />
           </Route>
