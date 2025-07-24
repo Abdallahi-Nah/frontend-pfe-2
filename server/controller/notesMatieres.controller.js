@@ -17,6 +17,7 @@ exports.getNotesMatieresByEtudiant = factory.getNotesMatieresByEtudiant(NotesMat
 
 exports.getNoteByType = asyncHandler(async (req, res, next) => {
   const { specialiteId, moduleId, matiereId, etudiantId, type } = req.params;
+  console.log("🔎 Type reçu :", type);
 
   const validTypes = ["tp", "cc", "ecrit", "ratt"];
   if (!validTypes.includes(type)) {

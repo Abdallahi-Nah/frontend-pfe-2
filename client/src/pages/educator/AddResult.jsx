@@ -216,7 +216,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-
 // Déclaration du composant FormField
 const FormField = ({ children, label }) => (
   <div className="mb-4">
@@ -330,12 +329,16 @@ const AddResult = () => {
   }, [formData.module]);
 
   useEffect(() => {
+    console.log("form data matiere : ", formData.matiere);
     if (formData.matiere) {
       axios
         .get(
           `http://localhost:4000/etudiant/get-students-by-matiere/${formData.matiere}`
         )
-        .then((res) => setEtudiants(res.data.data))
+        .then((res) => {
+          console.log("Étudiants récupérés :", res.data.data);
+          setEtudiants(res.data.data);
+        })
         .catch((err) => console.error(err));
     }
   }, [formData.matiere]);
@@ -344,13 +347,18 @@ const AddResult = () => {
     const { specialite, module, matiere, etudiant, type } = formData;
 
     if (specialite && module && matiere && etudiant && type) {
-      axios
-        .get(
-          `http://localhost:4000/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`
-        )
+      console.log("hellooooo");
+      const url = `http://localhost:4000/notes-matieres/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`;
+      console.log("url : ", url);
+      axios.get(
+        `http://localhost:4000/notes-matieres/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`
+      )
         .then((res) => {
-          const noteValue = res.data.note ?? 0; // si undefined/null → 0
+          const noteValue = res.data.data.value ?? 0;
+          console.log("response : ", res.data.data.value ?? 0);
+          // const noteValue = res.data.data?.value ?? 0;
           setFormData((prev) => ({ ...prev, note: noteValue }));
+          console.log("FormData sent to GET:", formData);
         })
         .catch((err) => {
           console.warn("Note introuvable, on met 0 par défaut");
@@ -408,7 +416,6 @@ const AddResult = () => {
       toast.error("❌ Échec de l'enregistrement !");
     }
   };
-
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white min-h-screen">
