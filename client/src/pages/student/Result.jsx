@@ -1,18 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { useState } from "react";
+import axios from "axios";
+import { AppContext } from "../../context/AppContext";
+import Cookie from "cookie-universal";
 
 export default function StudentResults() {
   const [selectedSemester, setSelectedSemester] = useState("S3");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { backendUrl } = useContext(AppContext);
+  const cookies = Cookie();
+  const idStu = cookies.get("id");
 
-  const studentInfo = {
-    numeroEtudiant: "C17/38",
-    nomPrenom: "Ahmed Med",
-    profil:
-      "3ème Année Master (M3) Informatique, Science de Données et Réseaux Physiques Systèmes Informatiques",
+  const [studentInfos, setStudentInfos] = useState({});
+
+  console.log("student infos : ", studentInfos);
+
+  const getStudentInfos = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/etudiant/get/${idStu}`);
+      console.log("infos stud : ", res.data.data);
+      setStudentInfos(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    getStudentInfos();
+  }, []);
+  console.log("studentInfos specialite : ", studentInfos.specialite);
+  // specialite nouveauAcademique
+  let studentInfo;
+  if (studentInfos) {
+    let specialite = studentInfos.specialite;
+    console.log("studentInfos specialite : ", specialite);
+    studentInfo = {
+      numeroEtudiant: studentInfos.matricule,
+      nomPrenom: `${studentInfos.nom} ${studentInfos.prenom}`,
+      // profil: `${studentInfos.specialite.nouveauAcademique} - ${studentInfos.specialite.nom}`,
+      profil: `${studentInfos.specialite?.nouveauAcademique || ""} - ${
+        studentInfos.specialite?.nom || ""
+      }`,
+    };
+  }
 
   const semesters = ["S1", "S2", "S3", "S4", "S5", "S6"];
 

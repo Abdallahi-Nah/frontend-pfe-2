@@ -143,6 +143,7 @@ export const AppContextProvider = (props) => {
   const value = {
     currency,
     allCourses,
+    setAllCourses,
     navigate,
     calculateRating,
     isEducator,

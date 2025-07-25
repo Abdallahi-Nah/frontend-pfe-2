@@ -7,26 +7,35 @@ import YouTube from "react-youtube";
 import Footer from "../../components/student/Footer";
 import Rating from "../../components/student/Rating";
 import Loading from "../../components/student/Loading";
+import axios from "axios";
 
 const Player = () => {
-  const { allCourses, calculateChapterTime } = useContext(AppContext);
-
+  const { backendUrl, allCourses, calculateChapterTime } = useContext(AppContext);
+  console.log("allCourses : ", allCourses);
   const { courseId } = useParams();
   const [courseData, setCourseData] = useState(null);
   const [openSections, setOpenSections] = useState({});
   const [playerData, setPlayerData] = useState(null);
   const [initialRating, setInitialRating] = useState(0);
 
-  useEffect(() => {
-    if (!allCourses || allCourses.length === 0) return;
+  const param = useParams();
+  console.log("param : ", param.courseId);
 
-    const course = allCourses.find((c) => c._id === courseId);
-    if (course) {
-      setCourseData(course);
-
-      // Utilisateur non connecté : initialRating restera à 0
+  const getCourse = async () => {
+    try {
+      const course = await axios.get(`${backendUrl}/course/${param.courseId}`);
+      if (course) {
+        setCourseData(course.data.courseData);
+      }
+      console.log("course : ", course.data.courseData);
+    } catch (error) {
+      console.log(error);
     }
-  }, [courseId, allCourses]);
+  }
+
+  useEffect(() => {
+    getCourse();
+  }, []);
 
   const toggleSection = (index) => {
     setOpenSections((prev) => ({
@@ -117,10 +126,10 @@ const Player = () => {
           </div>
 
           {/* Section rating (lecture seule, sans interaction) */}
-          <div className="flex items-center gap-2 py-3 mt-10">
+          {/* <div className="flex items-center gap-2 py-3 mt-10">
             <h1 className="text-xl font-bold">Évaluer ce cours : </h1>
             <Rating initialRating={initialRating} />
-          </div>
+          </div> */}
         </div>
 
         {/* Colonne droite : lecteur YouTube ou image */}
@@ -136,9 +145,9 @@ const Player = () => {
                   {playerData.chapter}.{playerData.lecture}.
                   {playerData.lectureTitle}
                 </p>
-                <button className="text-blue-600 cursor-pointer">
+                {/* <button className="text-blue-600 cursor-pointer">
                   Mark As Complete
-                </button>
+                </button> */}
               </div>
             </div>
           ) : (

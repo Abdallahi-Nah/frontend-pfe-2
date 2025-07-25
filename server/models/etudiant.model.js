@@ -17,13 +17,13 @@ const etudiantSchema = new mongoose.Schema({
 // Héritage du schéma Utilisateur
 etudiantSchema.add(Utilisateur.schema);
 
-// nouveauAcademique.pre(/^find/, function (next) {
-//   this.populate({
-//     path: 'specialite',
-//     select: 'nom nouveauAcademique',
-//   });
-//   next();
-// });
+etudiantSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'specialite',
+    select: 'nom nouveauAcademique',
+  });
+  next();
+});
 
 // Modèle Étudiant
 const Etudiant = mongoose.model("Etudiant", etudiantSchema);
