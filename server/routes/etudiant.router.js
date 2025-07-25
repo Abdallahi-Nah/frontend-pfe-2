@@ -7,6 +7,7 @@ const {
   updateEtudiant,
   deleteEtudiant,
   getEtudiantsByMatiereId,
+  getStudentResult,
 } = require("../controller/etudiant.controller");
 
 const {
@@ -26,6 +27,7 @@ router.post("/create", createEtudiantValidator, createEtudiant);
 router.get("/get", getEtudiants);
 router.get("/get/:id", getEtudiantByIdValidator, getEtudiant);
 router.get("/get-students-by-matiere/:matiereId", getEtudiantsByMatiereId);
+router.get("/get-result/:id", getStudentResult);
 router.put("/update/:id", updateEtudiantValidator, updateEtudiant);
 router.delete("/delete/:id", deleteEtudiantValidator, deleteEtudiant);
 

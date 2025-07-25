@@ -10,6 +10,7 @@ const {
 } = require("../my_middlewares/uploadImageMiddleware");
 const createToken = require("../utils/createToken");
 const Etudiant = require("../models/etudiant.model");
+const NotesModules = require("../models/notesModules.model");
 const contratPedagogiqueModel = require("../models/contratPedagogique.model");
 const ContratPedagogique = require("../models/contratPedagogique.model");
 const Module = require("../models/module.model");
@@ -264,3 +265,294 @@ exports.getEtudiantsByMatiereId = async (req, res) => {
     res.status(500).json({ status: "error", message: "Erreur serveur" });
   }
 };
+
+// const Etudiant = require("../../models/etudiant.model");
+
+
+// exports.getStudentResult = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const etudiant = await Etudiant.findById(id).populate({
+//       path: "specialite",
+//       populate: {
+//         path: "modules",
+//         populate: {
+//           path: "matieres",
+//         },
+//       },
+//     });
+
+//     if (!etudiant) {
+//       return res.status(404).json({ message: "Étudiant non trouvé" });
+//     }
+
+//     const notesModules = await NotesModules.find({ etudiant: id })
+//       .populate({
+//         path: "notesMatieres",
+//         populate: {
+//           path: "matiere",
+//         },
+//       })
+//       .populate({
+//         path: "module",
+//         populate: {
+//           path: "matieres",
+//         },
+//       });
+
+//     const resultats = {};
+
+//     notesModules.forEach((noteModule) => {
+//       const semestre = noteModule.module?.semestre || "Inconnu";
+
+//       if (!resultats[semestre]) {
+//         resultats[semestre] = {
+//           moyenneSemestre: 0,
+//           modules: [],
+//           _total: 0,
+//           _count: 0,
+//         };
+//       }
+
+//       resultats[semestre].modules.push({
+//         module: noteModule.module.nom,
+//         moyenneModule: noteModule.moyenne,
+//         matieres: noteModule.notesMatieres.map((note) => ({
+//           matiere: note.matiere.nom,
+//           note: note.note,
+//         })),
+//       });
+
+//       // Pour moyenne du semestre
+//       if (typeof noteModule.moyenne === "number") {
+//         resultats[semestre]._total += noteModule.moyenne;
+//         resultats[semestre]._count += 1;
+//       }
+//     });
+
+//     // Finaliser le calcul des moyennes de semestre
+//     for (const semestre in resultats) {
+//       const data = resultats[semestre];
+//       data.moyenneSemestre =
+//         data._count > 0 ? Number((data._total / data._count).toFixed(2)) : null;
+//       delete data._total;
+//       delete data._count;
+//     }
+
+//     return res.status(200).json({ etudiant, resultats });
+//   } catch (error) {
+//     console.error("Erreur lors de la récupération des résultats:", error);
+//     return res.status(500).json({
+//       message: "Erreur lors de la récupération des résultats",
+//       error,
+//     });
+//   }
+// };
+
+// exports.getStudentResult = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const etudiant = await Etudiant.findById(id).populate({
+//       path: "specialite",
+//       populate: {
+//         path: "modules",
+//       },
+//     });
+
+//     if (!etudiant) {
+//       return res.status(404).json({ message: "Étudiant non trouvé" });
+//     }
+
+//     const notesModules = await NotesModules.find({ etudiant: id })
+//       .populate({
+//         path: "notesMatieres",
+//         populate: {
+//           path: "matiere",
+//           select: "nom code credit",
+//         },
+//       })
+//       .populate({
+//         path: "module",
+//         select: "nom slug semestre",
+//       });
+
+//     const resultats = {};
+
+//     notesModules.forEach((noteModule) => {
+//       const module = noteModule.module;
+//       const semestre = module?.semestre || "Semestre inconnu";
+
+//       if (!resultats[semestre]) {
+//         resultats[semestre] = {
+//           moyenneSemestre: 0,
+//           decision: "",
+//           modules: [],
+//           _total: 0,
+//           _count: 0,
+//         };
+//       }
+
+//       const moduleObj = {
+//         nom: module.nom,
+//         code: module.slug || "", // Si tu veux un champ code, remplace par module.code si ça existe
+//         moyenne: noteModule.moyenne,
+//         decision: noteModule.decision,
+//         matieres: [],
+//       };
+
+//       noteModule.notesMatieres.forEach((noteMatiere) => {
+//         const matiere = noteMatiere.matiere;
+//         moduleObj.matieres.push({
+//           nom: matiere?.nom,
+//           code: matiere?.code,
+//           credit: matiere?.credit,
+//           cc: noteMatiere.cc,
+//           tp: noteMatiere.tp,
+//           ecrit: noteMatiere.ecrit,
+//           ratt: noteMatiere.ratt,
+//           moyenne: noteMatiere.moyenne,
+//           decision: noteMatiere.decision,
+//         });
+//       });
+
+//       resultats[semestre].modules.push(moduleObj);
+
+//       // Calculer moyenne du semestre
+//       if (typeof noteModule.moyenne === "number") {
+//         resultats[semestre]._total += noteModule.moyenne;
+//         resultats[semestre]._count += 1;
+//       }
+//     });
+
+//     // Finaliser les moyennes par semestre
+//     for (const semestre in resultats) {
+//       const s = resultats[semestre];
+//       s.moyenneSemestre =
+//         s._count > 0 ? Number((s._total / s._count).toFixed(2)) : null;
+//       delete s._total;
+//       delete s._count;
+
+//       // Facultatif : déterminer la décision du semestre automatiquement
+//       s.decision = s.moyenneSemestre >= 10 ? "Validé" : "Ajourné";
+//     }
+
+//     return res.status(200).json({ etudiant, resultats });
+//   } catch (error) {
+//     console.error("Erreur lors de la récupération des résultats:", error);
+//     return res.status(500).json({
+//       message: "Erreur lors de la récupération des résultats",
+//       error,
+//     });
+//   }
+// };
+
+exports.getStudentResult = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Récupération de l'étudiant et sa spécialité
+    const etudiant = await Etudiant.findById(id).populate({
+      path: "specialite",
+      populate: {
+        path: "modules",
+      },
+    });
+
+    if (!etudiant) {
+      return res.status(404).json({ message: "Étudiant non trouvé" });
+    }
+
+    // 2. Récupération des notes modules avec leurs modules et matières
+    const notesModules = await NotesModules.find({ etudiant: id })
+      .populate({
+        path: "notesMatieres",
+        populate: {
+          path: "matiere",
+          select: "nom code credit",
+        },
+      })
+      .populate({
+        path: "module",
+        select: "nom slug semestre",
+      });
+
+    const resultats = {};
+
+    // 3. Construction des résultats par semestre
+    notesModules.forEach((noteModule) => {
+      const module = noteModule.module;
+      const semestre = module?.semestre || "Semestre inconnu";
+
+      // Initialiser si le semestre n'existe pas encore
+      if (!resultats[semestre]) {
+        resultats[semestre] = {
+          moyenneSemestre: 0,
+          decision: "",
+          modules: [],
+          _total: 0,
+          _count: 0,
+        };
+      }
+
+      // Création d'un objet module
+      const moduleObj = {
+        nom: module.nom,
+        code: module.slug || "", // Tu peux changer 'slug' en 'code' si tu l’ajoutes dans le modèle
+        moyenne: noteModule.moyenne,
+        decision: noteModule.decision,
+        matieres: [],
+      };
+
+      // Remplissage des matières avec détails
+      noteModule.notesMatieres.forEach((noteMatiere) => {
+        const matiere = noteMatiere.matiere;
+        moduleObj.matieres.push({
+          nom: matiere?.nom,
+          code: matiere?.code,
+          credit: matiere?.credit,
+          cc: noteMatiere.cc,
+          tp: noteMatiere.tp,
+          ecrit: noteMatiere.ecrit,
+          ratt: noteMatiere.ratt,
+          moyenne: noteMatiere.moyenne,
+          decision: noteMatiere.decision,
+        });
+      });
+
+      // Ajouter le module au semestre
+      resultats[semestre].modules.push(moduleObj);
+
+      // Comptabiliser pour calcul de la moyenne du semestre
+      if (typeof noteModule.moyenne === "number") {
+        resultats[semestre]._total += noteModule.moyenne;
+        resultats[semestre]._count += 1;
+      }
+    });
+
+    // 4. Finalisation : calcul des moyennes et décisions
+    for (const semestre in resultats) {
+      const data = resultats[semestre];
+      data.moyenneSemestre =
+        data._count > 0 ? Number((data._total / data._count).toFixed(2)) : null;
+      delete data._total;
+      delete data._count;
+
+      // Déterminer la décision globale du semestre
+      data.decision = data.moyenneSemestre >= 10 ? "Validé" : "Ajourné";
+    }
+
+    // 5. Réponse finale
+    return res.status(200).json({ etudiant, resultats });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des résultats:", error);
+    return res.status(500).json({
+      message: "Erreur lors de la récupération des résultats",
+      error,
+    });
+  }
+};
+
+
+
