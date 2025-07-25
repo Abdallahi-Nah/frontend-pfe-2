@@ -34,7 +34,7 @@ const notesModulesSchema = new mongoose.Schema(
 notesModulesSchema.pre(/^find/, function (next) {
   this.populate({
     path: "module",
-    select: "nom",
+    select: "nom slug semestre",
   });
   next();
 });

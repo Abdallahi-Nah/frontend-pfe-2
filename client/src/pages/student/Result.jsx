@@ -1,202 +1,141 @@
 "use client";
-
-import React, { useContext, useEffect } from "react";
-import { useState } from "react";
+import React from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AppContext } from "../../context/AppContext";
 import Cookie from "cookie-universal";
 
 export default function StudentResults() {
-  const [selectedSemester, setSelectedSemester] = useState("S3");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { backendUrl } = useContext(AppContext);
   const cookies = Cookie();
   const idStu = cookies.get("id");
+  const [studentInfos, setStudentInfos] = useState(null);
+  const [selectedSemester, setSelectedSemester] = useState("S3");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const semesters = ["S1", "S2", "S3", "S4", "S5", "S6"];
+  const [resultsData, setResultsData] = useState([]);
 
-  const [studentInfos, setStudentInfos] = useState({});
-
-  console.log("student infos : ", studentInfos);
-
+  // 1. Récupérer les infos de l'étudiant
   const getStudentInfos = async () => {
     try {
       const res = await axios.get(`${backendUrl}/etudiant/get/${idStu}`);
-      console.log("infos stud : ", res.data.data);
-      setStudentInfos(res.data.data);
-    } catch (error) {
-      console.log(error);
+      console.log("res : ", res.data.data);
+      setStudentInfos(res.data.data || res.data.etudiant);
+    } catch (err) {
+      console.error("Erreur récupération infos étudiant :", err);
+    }
+  };
+
+  // 2. Récupérer les résultats selon le semestre sélectionné
+  const getStudentResults = async () => {
+    try {
+      const res = await axios.get(
+        `${backendUrl}/etudiant/get-result/${idStu}`,
+        {
+          params: { semestre: selectedSemester },
+        }
+      );
+      console.log("res 2 : ", res.data.resultats);
+      const out = res.data.resultats || res.data.data?.resultats;
+      if (out && Object.keys(out).length === 1) {
+        // extraire les modules
+        const semKey = Object.keys(out)[0];
+        setResultsData(out[semKey].modules);
+      } else {
+        setResultsData([]);
+      }
+    } catch (err) {
+      console.error("Erreur récupération résultats :", err);
+      setResultsData([]);
     }
   };
 
   useEffect(() => {
-    getStudentInfos();
-  }, []);
-  console.log("studentInfos specialite : ", studentInfos.specialite);
-  // specialite nouveauAcademique
-  let studentInfo;
+    if (idStu) getStudentInfos();
+  }, [idStu]);
+
+  useEffect(() => {
+    if (idStu && selectedSemester) getStudentResults();
+  }, [selectedSemester, idStu]);
+
+  // const calculateSubjectAverage = (subject) => {
+  //   const noteExamen = subject.ratt != null ? subject.ratt : subject.ecrit;
+  //   const notes = [subject.cc, subject.tp, noteExamen].filter((n) => n != null);
+  //   if (notes.length === 0) return 0;
+  //   return notes.reduce((a, b) => a + b, 0) / notes.length;
+  // };
+
+  const calculateSubjectAverage = (subject) => {
+    if (subject.moyenne != null) return subject.moyenne;
+
+    const noteExamen = subject.ratt != null ? subject.ratt : subject.ecrit;
+    const notes = [subject.cc, subject.tp, noteExamen].filter((n) => n != null);
+    if (notes.length === 0) return 0;
+    return notes.reduce((a, b) => a + b, 0) / notes.length;
+  };
+
+  const getDecision = (avg) => (avg >= 10 ? "V" : avg >= 8 ? "R" : "NV");
+
+  const calculateModuleAverage = (subjects) => {
+    const totCred = subjects.reduce((s, m) => s + (m.credit || 0), 0);
+    const weighted = subjects.reduce(
+      (sum, m) => sum + calculateSubjectAverage(m) * (m.credit || 0),
+      0
+    );
+    return totCred ? weighted / totCred : 0;
+  };
+
+  const semesterAverage = resultsData.reduce(
+    (sum, mod) =>
+      sum +
+      calculateModuleAverage(mod.matieres || mod.subjects || mod.matieres),
+    0
+  );
+
+  const totalCredits = resultsData.reduce(
+    (sum, mod) =>
+      sum +
+      (mod.matieres || mod.subjects).reduce((c, m) => c + (m.credit || 0), 0),
+    0
+  );
+
+  // const validatedCredits = resultsData.reduce(
+  //   (sum, mod) =>
+  //     sum +
+  //     (mod.matieres || mod.subjects).reduce((v, m) => {
+  //       const avg = calculateSubjectAverage(m);
+  //       return sum + (avg >= 10 ? m.credit || 0 : 0);
+  //     }, 0),
+  //   0
+  // );
+
+
+  const validatedCredits = resultsData.reduce((sum, mod) => {
+    return (
+      sum +
+      (mod.matieres || mod.subjects).reduce((v, m) => {
+        const avg = calculateSubjectAverage(m);
+        return v + (avg >= 10 ? m.credit || 0 : 0);
+      }, 0)
+    );
+  }, 0);
+
+
+  const juryDecision = getDecision(semesterAverage / resultsData.length);
+
+  const handleDownload = () => window.print();
+
+  // Préparer les infos étudiant
+  let studentInfo = {};
   if (studentInfos) {
-    let specialite = studentInfos.specialite;
-    console.log("studentInfos specialite : ", specialite);
     studentInfo = {
       numeroEtudiant: studentInfos.matricule,
       nomPrenom: `${studentInfos.nom} ${studentInfos.prenom}`,
-      // profil: `${studentInfos.specialite.nouveauAcademique} - ${studentInfos.specialite.nom}`,
       profil: `${studentInfos.specialite?.nouveauAcademique || ""} - ${
         studentInfos.specialite?.nom || ""
       }`,
     };
   }
-
-  const semesters = ["S1", "S2", "S3", "S4", "S5", "S6"];
-
-  const [resultsData, setResultsData] = useState([
-    {
-      module: "Module 1",
-      subjects: [
-        {
-          code: "C20M121",
-          matiere: "SIG",
-          credit: 3.0,
-          noteCC: 15.0,
-          noteTP: 16.5,
-          noteE: 15.0,
-          noteRattrapage: null,
-        },
-        {
-          code: "C20M122",
-          matiere: "IHM",
-          credit: 3.0,
-          noteCC: 14.0,
-          noteTP: 13.5,
-          noteE: 14.0,
-          noteRattrapage: null,
-        },
-        {
-          code: "C20M123",
-          matiere: "Base de Données",
-          credit: 4.0,
-          noteCC: 8.5,
-          noteTP: 9.0,
-          noteE: 7.5,
-          noteRattrapage: 12.0,
-        },
-        {
-          code: "C20M124",
-          matiere: "Réseaux",
-          credit: 3.0,
-          noteCC: 12.0,
-          noteTP: 11.5,
-          noteE: 13.0,
-          noteRattrapage: null,
-        },
-      ],
-    },
-    {
-      module: "Module 2",
-      subjects: [
-        {
-          code: "C20M125",
-          matiere: "Programmation Web",
-          credit: 4.0,
-          noteCC: 16.0,
-          noteTP: 17.0,
-          noteE: 15.5,
-          noteRattrapage: null,
-        },
-        {
-          code: "C20M126",
-          matiere: "Sécurité Informatique",
-          credit: 3.0,
-          noteCC: 9.0,
-          noteTP: 8.5,
-          noteE: 8.0,
-          noteRattrapage: 11.5,
-        },
-        {
-          code: "C20M127",
-          matiere: "Intelligence Artificielle",
-          credit: 4.0,
-          noteCC: 13.5,
-          noteTP: 14.0,
-          noteE: 12.5,
-          noteRattrapage: null,
-        },
-      ],
-    },
-  ]);
-
-  // Fonction pour calculer la moyenne d'une matière
-  const calculateSubjectAverage = (subject) => {
-    // Si il y a une note de rattrapage, elle remplace la note d'examen
-    const noteExamen =
-      subject.noteRattrapage !== null ? subject.noteRattrapage : subject.noteE;
-    const notes = [subject.noteCC, subject.noteTP, noteExamen].filter(
-      (note) => note !== null
-    );
-    if (notes.length === 0) return 0;
-    return notes.reduce((sum, note) => sum + note, 0) / notes.length;
-  };
-
-  // Fonction pour déterminer la décision
-  const getDecision = (average) => {
-    if (average >= 10) return "V";
-    if (average >= 8) return "R";
-    return "NV";
-  };
-
-  // Fonction pour calculer la moyenne d'un module
-  const calculateModuleAverage = (subjects) => {
-    const totalCredits = subjects.reduce(
-      (sum, subject) => sum + subject.credit,
-      0
-    );
-    const weightedSum = subjects.reduce((sum, subject) => {
-      const avg = calculateSubjectAverage(subject);
-      return sum + avg * subject.credit;
-    }, 0);
-    return totalCredits > 0 ? weightedSum / totalCredits : 0;
-  };
-
-  // Fonction pour calculer la moyenne générale du semestre
-  const calculateSemesterAverage = () => {
-    let totalCredits = 0;
-    let weightedSum = 0;
-
-    resultsData.forEach((module) => {
-      module.subjects.forEach((subject) => {
-        const avg = calculateSubjectAverage(subject);
-        totalCredits += subject.credit;
-        weightedSum += avg * subject.credit;
-      });
-    });
-
-    return totalCredits > 0 ? weightedSum / totalCredits : 0;
-  };
-
-  // Fonction pour calculer le total des crédits validés
-  const calculateValidatedCredits = () => {
-    let validatedCredits = 0;
-    let totalCredits = 0;
-
-    resultsData.forEach((module) => {
-      module.subjects.forEach((subject) => {
-        const avg = calculateSubjectAverage(subject);
-        totalCredits += subject.credit;
-        if (avg >= 10) {
-          validatedCredits += subject.credit;
-        }
-      });
-    });
-
-    return { validatedCredits, totalCredits };
-  };
-
-  const semesterAverage = calculateSemesterAverage();
-  const { validatedCredits, totalCredits } = calculateValidatedCredits();
-  const juryDecision = getDecision(semesterAverage);
-
-  const handleDownload = () => {
-    window.print();
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -208,7 +147,9 @@ export default function StudentResults() {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between cursor-pointer"
             >
-              <span className="text-gray-700">Filter par semestre</span>
+              <span className="text-gray-700">
+                Filter par semestre: {selectedSemester}
+              </span>
               <svg
                 className={`w-4 h-4 transition-transform ${
                   isDropdownOpen ? "rotate-180" : ""
@@ -225,7 +166,6 @@ export default function StudentResults() {
                 />
               </svg>
             </button>
-
             {isDropdownOpen && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                 {semesters.map((semester) => (
@@ -250,201 +190,223 @@ export default function StudentResults() {
           <h1 className="text-2xl font-bold text-gray-800 mb-6">
             # Résultats de l'étudiant
           </h1>
-
-          {/* Student Information Table */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <div className="flex">
-                <span className="font-semibold text-gray-700 w-32">
-                  Numéro Étudiant
-                </span>
-                <span className="text-gray-800">
-                  {studentInfo.numeroEtudiant}
-                </span>
+          {/* Student Information */}
+          {studentInfos && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="space-y-2">
+                <div className="flex">
+                  <span className="font-semibold text-gray-700 w-32">
+                    Numéro Étudiant
+                  </span>
+                  <span className="text-gray-800">
+                    {studentInfo.numeroEtudiant}
+                  </span>
+                </div>
+                <div className="flex">
+                  <span className="font-semibold text-gray-700 w-32">
+                    Nom/Prénom
+                  </span>
+                  <span className="text-gray-800">{studentInfo.nomPrenom}</span>
+                </div>
               </div>
-              <div className="flex">
-                <span className="font-semibold text-gray-700 w-32">
-                  Nom/Prénom
-                </span>
-                <span className="text-gray-800">{studentInfo.nomPrenom}</span>
+              <div className="space-y-2">
+                <div className="flex">
+                  <span className="font-semibold text-gray-700 w-20">
+                    Profil
+                  </span>
+                  <span className="text-gray-800 flex-1">
+                    {studentInfo.profil}
+                  </span>
+                </div>
+                <div className="flex">
+                  <span className="font-semibold text-gray-700 w-20">
+                    Semestre
+                  </span>
+                  <span className="text-gray-800">{selectedSemester}</span>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="flex">
-                <span className="font-semibold text-gray-700 w-20">Profil</span>
-                <span className="text-gray-800 flex-1">
-                  {studentInfo.profil}
-                </span>
-              </div>
-              <div className="flex">
-                <span className="font-semibold text-gray-700 w-20">
-                  Semestre
-                </span>
-                <span className="text-gray-800">{selectedSemester}</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Results Table */}
+        {/* Results */}
         <div className="p-6">
-          {resultsData.map((module, moduleIndex) => (
-            <div key={moduleIndex} className="mb-8">
-              {/* Subjects Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-300 text-sm">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
-                        Matière
-                      </th>
-                      <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                        Credit
-                      </th>
-                      <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                        Note CC
-                      </th>
-                      <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                        Note TP
-                      </th>
-                      <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                        Note E
-                      </th>
-                      <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                        Note Rattrapage
-                      </th>
-                      <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                        M
-                      </th>
-                      <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                        D
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {module.subjects.map((subject, subjectIndex) => {
-                      const average = calculateSubjectAverage(subject);
-                      const decision = getDecision(average);
+          {resultsData.length === 0 ? (
+            <div className="text-center text-gray-500">
+              Aucun résultat pour ce semestre.
+            </div>
+          ) : (
+            resultsData.map((module, moduleIndex) => (
+              <div key={moduleIndex} className="mb-8">
+                {/* Subjects Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300 text-sm">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                          Matière
+                        </th>
+                        <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                          Credit
+                        </th>
+                        <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                          Note CC
+                        </th>
+                        <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                          Note TP
+                        </th>
+                        <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                          Note E
+                        </th>
+                        <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                          Note Rattrapage
+                        </th>
+                        <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                          M
+                        </th>
+                        <th className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                          D
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(module.matieres || module.subjects).map(
+                        (subject, subjectIndex) => {
+                          const average = calculateSubjectAverage(subject);
+                          const decision = getDecision(average);
+                          return (
+                            <tr key={subjectIndex} className="hover:bg-gray-50">
+                              <td className="border border-gray-300 px-3 py-2">
+                                <div className="font-medium">
+                                  {subject.nom || subject.matiere}
+                                </div>
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2 text-center">
+                                {(subject.credit || 0).toFixed(1)}
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2 text-center">
+                                {subject.cc ? subject.cc.toFixed(2) : "-"}
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2 text-center">
+                                {subject.tp ? subject.tp.toFixed(2) : "-"}
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2 text-center">
+                                {subject.ecrit ? subject.ecrit.toFixed(2) : "-"}
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2 text-center">
+                                {subject.ratt ? (
+                                  <span className="text-orange-600 font-semibold">
+                                    {subject.ratt.toFixed(2)}
+                                  </span>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2 text-center font-semibold">
+                                {average.toFixed(2)}
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2 text-center">
+                                <span
+                                  className={`font-semibold ${
+                                    decision === "V"
+                                      ? "text-green-600"
+                                      : decision === "R"
+                                      ? "text-orange-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {decision}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        }
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
-                      return (
-                        <tr key={subjectIndex} className="hover:bg-gray-50">
-                          <td className="border border-gray-300 px-3 py-2">
-                            <div className="font-mono text-xs text-gray-600">
-                              {subject.code}
-                            </div>
-                            <div className="font-medium">{subject.matiere}</div>
-                          </td>
-                          <td className="border border-gray-300 px-3 py-2 text-center">
-                            {subject.credit.toFixed(1)}
-                          </td>
-                          <td className="border border-gray-300 px-3 py-2 text-center">
-                            {subject.noteCC ? subject.noteCC.toFixed(2) : "-"}
-                          </td>
-                          <td className="border border-gray-300 px-3 py-2 text-center">
-                            {subject.noteTP ? subject.noteTP.toFixed(2) : "-"}
-                          </td>
-                          <td className="border border-gray-300 px-3 py-2 text-center">
-                            {subject.noteE ? subject.noteE.toFixed(2) : "-"}
-                          </td>
-                          <td className="border border-gray-300 px-3 py-2 text-center">
-                            {subject.noteRattrapage ? (
-                              <span className="text-orange-600 font-semibold">
-                                {subject.noteRattrapage.toFixed(2)}
-                              </span>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                          <td className="border border-gray-300 px-3 py-2 text-center font-semibold">
-                            {average.toFixed(2)}
-                          </td>
-                          <td className="border border-gray-300 px-3 py-2 text-center">
-                            <span
-                              className={`font-semibold ${
-                                decision === "V"
-                                  ? "text-green-600"
-                                  : decision === "R"
-                                  ? "text-orange-600"
-                                  : "text-red-600"
-                              }`}
-                            >
-                              {decision}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                {/* Module Average */}
+                <div className="mt-4 bg-gray-50 p-3 rounded">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-gray-700">
+                      Moyenne Module
+                    </span>
+                    <div className="flex items-center space-x-4">
+                      <span className="font-bold text-lg">
+                        {calculateModuleAverage(
+                          module.matieres || module.subjects
+                        ).toFixed(2)}
+                      </span>
+                      <span
+                        className={`font-semibold ${
+                          getDecision(
+                            calculateModuleAverage(
+                              module.matieres || module.subjects
+                            )
+                          ) === "V"
+                            ? "text-green-600"
+                            : getDecision(
+                                calculateModuleAverage(
+                                  module.matieres || module.subjects
+                                )
+                              ) === "R"
+                            ? "text-orange-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {getDecision(
+                          calculateModuleAverage(
+                            module.matieres || module.subjects
+                          )
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
+            ))
+          )}
 
-              {/* Module Average */}
-              <div className="mt-4 bg-gray-50 p-3 rounded">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-700">
-                    Moyenne Module
-                  </span>
-                  <div className="flex items-center space-x-4">
-                    <span className="font-bold text-lg">
-                      {calculateModuleAverage(module.subjects).toFixed(2)}
-                    </span>
-                    <span
-                      className={`font-semibold ${
-                        getDecision(calculateModuleAverage(module.subjects)) ===
-                        "V"
-                          ? "text-green-600"
-                          : getDecision(
-                              calculateModuleAverage(module.subjects)
-                            ) === "R"
-                          ? "text-orange-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {getDecision(calculateModuleAverage(module.subjects))}
-                    </span>
+          {/* Summary Section */}
+          {resultsData.length > 0 && (
+            <div className="border-t-2 border-gray-300 pt-6 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">
+                    Moyenne Semestre
+                  </div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {(semesterAverage / resultsData.length).toFixed(2)}/20
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">
+                    Total crédit validé
+                  </div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {validatedCredits}/{totalCredits}
+                  </div>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">
+                    Décision du Jury
+                  </div>
+                  <div
+                    className={`text-2xl font-bold ${
+                      juryDecision === "V"
+                        ? "text-green-600"
+                        : juryDecision === "R"
+                        ? "text-orange-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {juryDecision}
                   </div>
                 </div>
               </div>
             </div>
-          ))}
-
-          {/* Summary Section */}
-          <div className="border-t-2 border-gray-300 pt-6 mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">
-                  Moyenne Semestre
-                </div>
-                <div className="text-2xl font-bold text-blue-600">
-                  {semesterAverage.toFixed(2)}/20
-                </div>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">
-                  Total crédit validé
-                </div>
-                <div className="text-2xl font-bold text-green-600">
-                  {validatedCredits}/{totalCredits}
-                </div>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">
-                  Décision du Jury
-                </div>
-                <div
-                  className={`text-2xl font-bold ${
-                    juryDecision === "V"
-                      ? "text-green-600"
-                      : juryDecision === "R"
-                      ? "text-orange-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {juryDecision}
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Legend */}
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">

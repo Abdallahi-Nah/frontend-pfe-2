@@ -1,11 +1,21 @@
 "use client";
 
-import React from "react";
+import axios from "axios";
+import React, { useContext, useEffect } from "react";
 import { useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import Cookie from "cookie-universal";
 
 export default function AttestationPage() {
+  const { backendUrl } = useContext(AppContext);
+  const cookies = Cookie();
+  const idStu = cookies.get("id");
   const [attestationType, setAttestationType] = useState("inscription");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [studentInfos, setStudentInfos] = useState(null);
+  const [matieres, setMatieres] = useState(null);
+
+  console.log("matieres : ", matieres);
 
   const attestationTypes = [
     { value: "inscription", label: "Attestation d'inscription" },
@@ -13,16 +23,67 @@ export default function AttestationPage() {
     { value: "master", label: "Attestation master" },
   ];
 
-  const studentData = {
-    name: "Ahmed-Med Sidi",
-    surname: "Bourlain",
-    birthDate: "05/02/1999",
-    birthPlace: "Nouakchott",
-    studentId: "C17395",
-    program:
-      "2ème Année Master (M2) Informatique, Science de Données et Réseaux Physiques Systèmes Informatiques",
-    academicYear: "2024-2025",
+  console.log("studentInfos : ", studentInfos);
+
+  // 1. Récupérer les infos de l'étudiant
+  const getStudentInfos = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/etudiant/get/${idStu}`);
+      console.log("res : ", res.data.data);
+      setStudentInfos(res.data.data || res.data.etudiant);
+    } catch (err) {
+      console.error("Erreur récupération infos étudiant :", err);
+    }
   };
+
+  const getMatieresAValides = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/contrat/get/${idStu}`);
+      console.log("matieres a valides : ", res.data);
+      setMatieres(res.data.data.matieresAValides);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear()).slice(-4);
+    return `${day}-${month}-${year}`;
+  };
+
+  const formatYear = (dateString) => {
+    const date = new Date(dateString);
+    const year = String(date.getFullYear()).slice(-4);
+    return `${year - 1}-${year}`;
+  };
+
+  useEffect(() => {
+    if (idStu) getStudentInfos();
+  }, [idStu]);
+
+  useEffect(() => {
+    getMatieresAValides();
+  }, []);
+
+  let studentData = {};
+  if (studentInfos) {
+    console.log("annee univ : ", formatYear(studentInfos.updatedAt));
+    studentData = {
+      name: `${studentInfos.nom}`,
+      surname: `${studentInfos.prenom}`,
+      birthDate: formatDate(studentInfos.dateNaissance),
+      birthPlace: "Nouakchott",
+      studentId: studentInfos.matricule,
+      program: `${studentInfos.specialite?.nouveauAcademique || ""} - ${
+        studentInfos.specialite?.nom || ""
+      }`,
+      profileImg: studentInfos.profileImg,
+      academicYear: formatYear(studentInfos.updatedAt),
+    };
+  }
 
   const courses = [
     { code: "C1SM212", element: "Sécurité des SI", coef: "3.0" },
@@ -153,12 +214,6 @@ export default function AttestationPage() {
                     {studentData.surname}
                   </span>
                 </div>
-                <div>
-                  <span className="font-semibold text-gray-700">À :</span>
-                  <span className="ml-2 text-gray-800">
-                    {studentData.birthPlace}
-                  </span>
-                </div>
               </div>
 
               <div>
@@ -178,19 +233,18 @@ export default function AttestationPage() {
 
             {/* Photo Placeholder */}
             <div className="flex justify-center lg:justify-end">
-              <div className="w-32 h-40 bg-gray-200 border-2 border-gray-300 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-6 h-6"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
+              <div className="w-32 h-40 bg-gray-200 border-2 border-gray-300 overflow-hidden rounded-md">
+                {studentData?.profileImg ? (
+                  <img
+                    src={studentData.profileImg}
+                    alt="Photo de profil"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                    Pas de photo
                   </div>
-                  <div className="text-xs">Photo</div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -216,39 +270,21 @@ export default function AttestationPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {courses.map((course, index) => (
+                  {matieres && matieres.map((matiere, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="border border-gray-300 px-4 py-2 font-mono text-sm">
-                        {course.code}
+                        {matiere.code || ""}
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        {course.element}
+                        {matiere.nom || ""}
                       </td>
                       <td className="border border-gray-300 px-4 py-2 text-center">
-                        {course.coef}
+                        {matiere.credit || ""}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          {/* Academic Year */}
-          <div className="mb-8">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <span className="font-semibold text-gray-700">
-                  Troisième semestre :
-                </span>
-                <span className="ml-2 text-gray-800">Groupe 1</span>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-700">
-                  Quatrième semestre :
-                </span>
-                <span className="ml-2 text-gray-800">Groupe 1</span>
-              </div>
             </div>
           </div>
 
@@ -270,28 +306,43 @@ export default function AttestationPage() {
 
           <div className="mb-8">
             <span className="text-sm text-gray-700">Nouakchott, le </span>
-            <span className="text-sm text-gray-800">10/11/2024</span>
+            <span className="text-sm text-gray-800">
+              {formatDate(new Date())}
+            </span>
           </div>
 
           {/* Signatures */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+            {/* Bloc Chef de la Scolarité avec QR Code */}
             <div className="text-center">
-              <div className="text-sm font-semibold text-gray-700 mb-8">
-                L'Étudiant(e)
+              <div className="text-sm font-semibold text-gray-700 mb-2">
+                Le Chef service de la Scolarité
               </div>
-              <div className="h-16 border-b border-gray-300"></div>
+              <div className="mt-4 flex justify-center">
+                <div className="p-2 border border-gray-300 rounded-md bg-white shadow-sm">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://votre-universite.edu/verif-scolarite/${studentData._id}`}
+                    alt="QR Code - Scolarité"
+                    className="w-24 h-24 object-contain"
+                  />
+                  <div className="text-xs text-gray-500 mt-1">Vérification</div>
+                </div>
+              </div>
             </div>
+
+            {/* Bloc Doyen avec QR Code */}
             <div className="text-center">
               <div className="text-sm font-semibold text-gray-700 mb-2">
                 Le Doyen
               </div>
-              <div className="text-xs text-gray-600 mb-6">
-                Le Chef service de la Scolarité
-              </div>
-              <div className="h-16 border-b border-gray-300"></div>
-              <div className="mt-2">
-                <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-                  <span className="text-xs text-gray-500">Cachet</span>
+              <div className="mt-4 flex justify-center">
+                <div className="p-2 border border-gray-300 rounded-md bg-white shadow-sm">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://votre-universite.edu/verif-doyen/${studentData._id}`}
+                    alt="QR Code - Doyen"
+                    className="w-24 h-24 object-contain"
+                  />
+                  <div className="text-xs text-gray-500 mt-1">Vérification</div>
                 </div>
               </div>
             </div>

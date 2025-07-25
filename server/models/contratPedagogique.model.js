@@ -35,7 +35,7 @@ contratPedagogiqueSchema.pre(/^find/, function (next) {
     },
     {
       path: "matieresAValides",
-      select: "nom",
+      select: "nom code credit",
     },
   ]);
   next();
