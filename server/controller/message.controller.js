@@ -1,5 +1,6 @@
 // controller/message.controller.js
 const Message = require("../models/message.model");
+const mongoose = require("mongoose");
 
 exports.createMessage = async (req, res) => {
   try {
@@ -91,3 +92,64 @@ exports.getMessages = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
+
+// message.controller.js
+
+// exports.getConversation = async (req, res) => {
+//   const { studentId, teacherId } = req.params;
+
+//   try {
+//     const messages = await Message.find({
+//       $or: [
+//         {
+//           senderId: new mongoose.Types.ObjectId(studentId),
+//           receiverId: new mongoose.Types.ObjectId(teacherId),
+//         },
+//         {
+//           senderId: new mongoose.Types.ObjectId(teacherId),
+//           receiverId: new mongoose.Types.ObjectId(studentId),
+//         },
+//       ],
+//     }).sort({ createdAt: 1 });
+
+//     res.status(200).json(messages);
+//   } catch (error) {
+//     console.error("Erreur getConversation:", error);
+//     res.status(500).json({ error: "Erreur récupération des messages" });
+//   }
+// };
+
+
+exports.getConversation = async (req, res) => {
+  const { teacherId, studentId } = req.params;
+
+  try {
+    // Vérifier les IDs
+    if (
+      !mongoose.Types.ObjectId.isValid(studentId) ||
+      !mongoose.Types.ObjectId.isValid(teacherId)
+    ) {
+      return res.status(400).json({ error: "ID invalide" });
+    }
+
+    const messages = await Message.find({
+      $or: [
+        {
+          senderId: new mongoose.Types.ObjectId(studentId),
+          receiverId: new mongoose.Types.ObjectId(teacherId),
+        },
+        {
+          senderId: new mongoose.Types.ObjectId(teacherId),
+          receiverId: new mongoose.Types.ObjectId(studentId),
+        },
+      ],
+    }).sort({ createdAt: 1 });
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.error("Erreur getConversation:", error.message);
+    res.status(500).json({ error: "Erreur récupération des messages" });
+  }
+};
+
+
