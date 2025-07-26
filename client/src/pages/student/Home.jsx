@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Hero from "../../components/student/Hero";
 import Widget from "../../components/student/Widget";
 import ApartmentIcon from "@mui/icons-material/Apartment";
@@ -13,6 +13,7 @@ import CallToAction from "../../components/student/CallToAction";
 import Footer from "../../components/student/Footer";
 import axios from "axios";
 import CountUp from "react-countup";
+import { AppContext } from "../../context/AppContext";
 
 const data = [
   {
@@ -56,18 +57,19 @@ const Home = () => {
     enseignants: 0,
     etudiants: 0,
   });
+  const {backendUrl} = useContext(AppContext);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const [deptRes, specRes, modRes, matRes, ensRes, etuRes] =
           await Promise.all([
-            axios.get("http://localhost:4000/departement/get"),
-            axios.get("http://localhost:4000/specialite/get"),
-            axios.get("http://localhost:4000/module/get"),
-            axios.get("http://localhost:4000/matiere/get"),
-            axios.get("http://localhost:4000/enseignant/get"),
-            axios.get("http://localhost:4000/etudiant/get"),
+            axios.get(`${backendUrl}/departement/get`),
+            axios.get(`${backendUrl}/specialite/get`),
+            axios.get(`${backendUrl}/module/get`),
+            axios.get(`${backendUrl}/matiere/get`),
+            axios.get(`${backendUrl}/enseignant/get`),
+            axios.get(`${backendUrl}/etudiant/get`),
           ]);
 
         setStats({

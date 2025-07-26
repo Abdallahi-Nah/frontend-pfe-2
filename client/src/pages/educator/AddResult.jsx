@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useContext } from "react";
+import { AppContext } from "../../context/AppContext";
 
 // Déclaration du composant FormField
 const FormField = ({ children, label }) => (
@@ -77,6 +79,7 @@ const AddResult = () => {
     type: "",
     note: 0,
   });
+  const {backendUrl} = useContext(AppContext);
 
   console.log("Form data submitted:", formData);
 
@@ -89,7 +92,7 @@ const AddResult = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4000/specialite/get")
+      .get(`${backendUrl}/specialite/get`)
       .then((res) => setSpecialites(res.data.data))
       .catch((err) => console.error(err));
   }, []);
@@ -98,7 +101,7 @@ const AddResult = () => {
     if (formData.specialite) {
       axios
         .get(
-          `http://localhost:4000/specialite/${formData.specialite}/module/get`
+          `${backendUrl}/specialite/${formData.specialite}/module/get`
         )
         .then((res) => setModules(res.data.data))
         .catch((err) => console.error(err));
@@ -108,7 +111,7 @@ const AddResult = () => {
   useEffect(() => {
     if (formData.module) {
       axios
-        .get(`http://localhost:4000/module/${formData.module}/matiere/get`)
+        .get(`${backendUrl}/module/${formData.module}/matiere/get`)
         .then((res) => setMatieres(res.data.data))
         .catch((err) => console.error(err));
     }
@@ -119,7 +122,7 @@ const AddResult = () => {
     if (formData.matiere) {
       axios
         .get(
-          `http://localhost:4000/etudiant/get-students-by-matiere/${formData.matiere}`
+          `${backendUrl}/etudiant/get-students-by-matiere/${formData.matiere}`
         )
         .then((res) => {
           console.log("Étudiants récupérés :", res.data.data);
@@ -134,10 +137,10 @@ const AddResult = () => {
 
     if (specialite && module && matiere && etudiant && type) {
       console.log("hellooooo");
-      const url = `http://localhost:4000/notes-matieres/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`;
+      const url = `${backendUrl}/notes-matieres/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`;
       console.log("url : ", url);
       axios.get(
-        `http://localhost:4000/notes-matieres/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`
+        `${backendUrl}/notes-matieres/note/${specialite}/${module}/${matiere}/${etudiant}/${type}`
       )
         .then((res) => {
           const noteValue = res.data.data.value ?? 0;
@@ -191,7 +194,7 @@ const AddResult = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:4000/notes-matieres/create",
+        `${backendUrl}/notes-matieres/create`,
         payload
       );
 

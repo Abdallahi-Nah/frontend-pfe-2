@@ -121,9 +121,7 @@ import Cookies from "js-cookie";
 import { Line } from "rc-progress";
 import { toast } from "react-toastify";
 import Footer from "../../components/student/Footer";
-import { AppContext } from "../../context/AppContext";
-
-const backendUrl = "http://localhost:4000"; // adapte si besoin
+import { backendUrl, AppContext } from "../../context/AppContext";
 
 const MyEnrollments = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
