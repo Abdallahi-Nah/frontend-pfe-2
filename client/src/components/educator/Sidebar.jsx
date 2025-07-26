@@ -1,61 +1,164 @@
-import React, { useContext } from "react";
-import { assets } from "../../assets/assets";
-import { AppContext } from "../../context/AppContext";
+"use client";
+
+import React, { useContext, useState } from "react";
 import { NavLink } from "react-router-dom";
+import {
+  Menu,
+  X,
+  Home,
+  BookOpen,
+  Award,
+  MessageCircle,
+  Briefcase,
+  Plus,
+  FileText,
+  GraduationCap,
+  User,
+} from "lucide-react";
+import { AppContext } from "../../context/AppContext";
 
 const Sidebar = () => {
   const { isEducator } = useContext(AppContext);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const newMenuItems = [
+  const studentMenuItems = [
+    {
+      name: "Mes emplois",
+      path: "/student/emplois",
+      icon: Home,
+    },
+    {
+      name: "Mes Résultats",
+      path: "/student/results",
+      icon: BookOpen,
+    },
+    {
+      name: "Attestation",
+      path: "/student/attestations",
+      icon: Award,
+    },
+    {
+      name: "Messageries",
+      path: "/student/messageries",
+      icon: MessageCircle,
+    },
+  ];
+
+  const educatorMenuItems = [
     {
       name: "Mon emploi",
       path: "/educator/emplois",
-      icon: assets.home_icon,
+      icon: Briefcase,
     },
     {
       name: "Mes Cours",
       path: "/educator/my-courses",
-      icon: assets.lesson_icon,
+      icon: BookOpen,
     },
     {
       name: "Ajouter un cours",
       path: "/educator/add-course",
-      icon: assets.add_icon,
+      icon: Plus,
     },
     {
       name: "Ajouter un résultat",
       path: "/educator/add-result",
-      icon: assets.add_icon,
+      icon: FileText,
     },
     {
       name: "Messageries",
       path: "/educator/messageries",
-      icon: assets.person_tick_icon,
+      icon: MessageCircle,
     },
   ];
 
+  const menuItems = isEducator ? educatorMenuItems : studentMenuItems;
+  const title = isEducator ? "Espace Éducateur" : "Espace Étudiant";
+  const roleIcon = isEducator ? GraduationCap : User;
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    isEducator && (
-      <div className="md:w-64 w-16 border-r min-h-screen text-base border-gray-500 py-2 flex flex-col">
-        {newMenuItems.map((item) => (
-          <NavLink
-            to={item.path}
-            key={item.name}
-            end={item.path === "/educator"}
-            className={({ isActive }) =>
-              `flex items-center md:flex-row flex-col md:justify-start justify-center py-3.5 md:px-10 gap-3 ${
-                isActive
-                  ? "bg-indigo-50 border-r-[6px] border-indigo-500/90"
-                  : "hover:bg-gray-100/90 border-r-[6px] border-white hover:border-gray-100/90"
-              }`
-            }
-          >
-            <img src={item.icon} alt="" className="w-6 h-6" />
-            <p className="md:block hidden">{item.name}</p>
-          </NavLink>
-        ))}
+    <>
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={toggleMobileMenu}
+          className="p-2 rounded-md bg-white shadow-md border border-gray-200 hover:bg-gray-50"
+        >
+          {isMobileMenuOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <Menu className="w-6 h-6" />
+          )}
+        </button>
       </div>
-    )
+
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50"
+          onClick={toggleMobileMenu}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`
+          fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out
+          lg:translate-x-0 lg:static lg:inset-0
+          ${
+            isMobileMenuOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
+          }
+        `}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 lg:justify-start">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
+                {roleIcon && <roleIcon className="h-4 w-4 text-white" />}
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            </div>
+            <button
+              onClick={toggleMobileMenu}
+              className="lg:hidden p-1 rounded-md hover:bg-gray-100"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-4 space-y-2">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? "bg-indigo-100 text-indigo-700 border-r-4 border-indigo-500 font-medium"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  }`
+                }
+              >
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <span className="truncate">{item.name}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Main content wrapper */}
+      <div className="lg:ml-64">{/* Your main content goes here */}</div>
+    </>
   );
 };
 
