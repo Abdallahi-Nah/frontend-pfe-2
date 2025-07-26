@@ -121,12 +121,12 @@ import Cookies from "js-cookie";
 import { Line } from "rc-progress";
 import { toast } from "react-toastify";
 import Footer from "../../components/student/Footer";
-import { backendUrl, AppContext } from "../../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 
 const MyEnrollments = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [progressArray, setProgressArray] = useState([]);
-  const {setAllCourses} = useContext(AppContext);
+  const { backendUrl, setAllCourses } = useContext(AppContext);
 
   const calculateCourseDuration = (course) => {
     let total = 0;
