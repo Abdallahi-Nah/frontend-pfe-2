@@ -105,50 +105,6 @@ export default function AttestationPage() {
 
   return (
     <div className="min-h-screen p-4 bg-gray-100/50">
-      {/* Filter Section */}
-      <div className="max-w-4xl mx-auto mb-6">
-        <div className="relative w-64">
-          <button
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between cursor-pointer"
-          >
-            <span className="text-gray-700">Filter par type</span>
-            <svg
-              className={`w-4 h-4 transition-transform ${
-                isFilterOpen ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {isFilterOpen && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-              {attestationTypes.map((type) => (
-                <button
-                  key={type.value}
-                  onClick={() => {
-                    setAttestationType(type.value);
-                    setIsFilterOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                >
-                  {type.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Main Document */}
       <div className="max-w-4xl mx-auto bg-white shadow-lg print:shadow-none">
         {/* Header */}
@@ -270,19 +226,20 @@ export default function AttestationPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {matieres && matieres.map((matiere, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 px-4 py-2 font-mono text-sm">
-                        {matiere.code || ""}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {matiere.nom || ""}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">
-                        {matiere.credit || ""}
-                      </td>
-                    </tr>
-                  ))}
+                  {matieres &&
+                    matieres.map((matiere, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="border border-gray-300 px-4 py-2 font-mono text-sm">
+                          {matiere.code || ""}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {matiere.nom || ""}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2 text-center">
+                          {matiere.credit || ""}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

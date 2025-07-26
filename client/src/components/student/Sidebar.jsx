@@ -18,7 +18,7 @@ const Sidebar = () => {
       icon: assets.my_course_icon,
     },
     {
-      name: "Mes Attestations",
+      name: "Attestation",
       path: "/student/attestations",
       icon: assets.my_course_icon,
     },
