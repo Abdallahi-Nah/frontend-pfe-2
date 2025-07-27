@@ -571,6 +571,7 @@ const AddCourse = () => {
           const response = await axios.get(
             `${backendUrl}/matiere/get/${matiere}`
           );
+          console.log("res : ", response);
           if (response.data && response.data.nom) {
             setCourseTitle(response.data.nom);
           }
