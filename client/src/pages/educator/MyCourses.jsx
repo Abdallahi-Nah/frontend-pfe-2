@@ -1,132 +1,132 @@
-// // import React, { useContext, useEffect, useState } from "react";
-// // import { AppContext } from "../../context/AppContext";
-// // import Loading from "../../components/student/Loading";
-// // import { Link } from "react-router-dom";
-// // import axios from "axios";
-// // import Swal from "sweetalert2";
+import React, { useContext, useEffect, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import Loading from "../../components/student/Loading";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 
-// // const MyCourses = () => {
-// //   const {
-// //     currency,
-// //     backendUrl,
-// //     allCourses,
-// //     fetchAllCourses,
-// //     calculateCourseDuration,
-// //   } = useContext(AppContext);
+const MyCourses = () => {
+  const {
+    currency,
+    backendUrl,
+    allCourses,
+    fetchAllCourses,
+    calculateCourseDuration,
+  } = useContext(AppContext);
 
-// //   const [courses, setCourses] = useState(null);
+  const [courses, setCourses] = useState(null);
 
-// //   const fetchEducatorCourses = async () => {
-// //     setCourses(allCourses);
-// //   };
+  const fetchEducatorCourses = async () => {
+    setCourses(allCourses);
+  };
 
-// //   const handleDelete = async (id) => {
-// //     try {
-// //       //
-// //       const res = await axios.delete(`${backendUrl}/course/${id}`);
-// //       await fetchAllCourses();
-// //       console.log(res);
-// //     } catch (error) {
-// //       console.log(error);
-// //     }
-// //   };
+  const handleDelete = async (id) => {
+    try {
+      //
+      const res = await axios.delete(`${backendUrl}/course/${id}`);
+      await fetchAllCourses();
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-// //   useEffect(() => {
-// //     fetchAllCourses();
-// //   }, []);
+  useEffect(() => {
+    fetchAllCourses();
+  }, []);
 
-// //   useEffect(() => {
-// //     if (allCourses.length > 0) {
-// //       setCourses(allCourses);
-// //     }
-// //   }, [allCourses]);
+  useEffect(() => {
+    if (allCourses.length > 0) {
+      setCourses(allCourses);
+    }
+  }, [allCourses]);
 
-// //   return courses ? (
-// //     <div className="h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">
-// //       <div className="w-full">
-// //         <h2 className="pb-4 text-lg font-medium">Mes cours</h2>
-// //         <div className="flex flex-col items-center max-w-4xl w-full overflow-hidden rounded-md bg-white border border-gray-500/20">
-// //           <table className="md:table-auto table-fixed  w-full overflow-hidden">
-// //             <thead className="text-gray-900 border-b border-gray-500/20 text-sm text-left">
-// //               <tr>
-// //                 <th className="px-4 py-3 font-semibold truncate">
-// //                   Tous les cours
-// //                 </th>
-// //                 <th className="px-4 py-3 font-semibold truncate">
-// //                   {" "}
-// //                   Durée du cours
-// //                 </th>
-// //                 <th className="px-4 py-3 font-semibold truncate">Publié le</th>
-// //                 <th className="px-4 py-3 font-semibold truncate">
-// //                   Les actions
-// //                 </th>
-// //               </tr>
-// //             </thead>
-// //             <tbody className="text-sm text-gray-500">
-// //               {courses.map((course) => (
-// //                 <tr key={course._id} className="border-b border-gray-500/20">
-// //                   <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
-// //                     <img
-// //                       src={course.courseThumbnail}
-// //                       alt="Course Image"
-// //                       className="w-16"
-// //                     />
-// //                     <span className="truncate hidden md:block">
-// //                       {course.courseTitle}
-// //                     </span>
-// //                   </td>
-// //                   <td className="px-4 py-3">
-// //                     {calculateCourseDuration(course)}
-// //                   </td>
-// //                   <td className="px-4 py-3">
-// //                     {new Date(course.createdAt).toLocaleDateString("fr-FR")}
-// //                   </td>
-// //                   <td className="px-4 py-3">
-// //                     <div className="flex items-center gap-2">
-// //                       {/* /educator/add-course */}
-// //                       <Link
-// //                         to={`/educator/update-course/${course._id}`}
-// //                         className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded"
-// //                       >
-// //                         Modifier
-// //                       </Link>
-// //                       <button
-// //                         onClick={() => {
-// //                           Swal.fire({
-// //                             title: "Êtes-vous sûr ?",
-// //                             text: `Voulez-vous vraiment supprimer ce cours ?  Cette action est irréversible.`,
-// //                             icon: "warning",
-// //                             showCancelButton: true,
-// //                             confirmButtonColor: "#d33",
-// //                             cancelButtonColor: "#3085d6",
-// //                             confirmButtonText: "Oui, supprimer",
-// //                             cancelButtonText: "Annuler",
-// //                             width: "50%",
-// //                           }).then((result) => {
-// //                             if (result.isConfirmed) {
-// //                               handleDelete(course._id);
-// //                             }
-// //                           });
-// //                         }}
-// //                         className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1 rounded cursor-pointer"
-// //                       >
-// //                         Supprimer
-// //                       </button>
-// //                     </div>
-// //                   </td>
-// //                 </tr>
-// //               ))}
-// //             </tbody>
-// //           </table>
-// //         </div>
-// //       </div>
-// //     </div>
-// //   ) : (
-// //     <Loading />
-// //   );
-// // };
+  return courses ? (
+    <div className="h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">
+      <div className="w-full">
+        <h2 className="pb-4 text-lg font-medium">Mes cours</h2>
+        <div className="flex flex-col items-center max-w-4xl w-full overflow-hidden rounded-md bg-white border border-gray-500/20">
+          <table className="md:table-auto table-fixed  w-full overflow-hidden">
+            <thead className="text-gray-900 border-b border-gray-500/20 text-sm text-left">
+              <tr>
+                <th className="px-4 py-3 font-semibold truncate">
+                  Tous les cours
+                </th>
+                <th className="px-4 py-3 font-semibold truncate">
+                  {" "}
+                  Durée du cours
+                </th>
+                <th className="px-4 py-3 font-semibold truncate">Publié le</th>
+                <th className="px-4 py-3 font-semibold truncate">
+                  Les actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="text-sm text-gray-500">
+              {courses.map((course) => (
+                <tr key={course._id} className="border-b border-gray-500/20">
+                  <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
+                    <img
+                      src={course.courseThumbnail}
+                      alt="Course Image"
+                      className="w-16"
+                    />
+                    <span className="truncate hidden md:block">
+                      {course.courseTitle}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {calculateCourseDuration(course)}
+                  </td>
+                  <td className="px-4 py-3">
+                    {new Date(course.createdAt).toLocaleDateString("fr-FR")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      {/* /educator/add-course */}
+                      <Link
+                        to={`/educator/update-course/${course._id}`}
+                        className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded"
+                      >
+                        Modifier
+                      </Link>
+                      <button
+                        onClick={() => {
+                          Swal.fire({
+                            title: "Êtes-vous sûr ?",
+                            text: `Voulez-vous vraiment supprimer ce cours ?  Cette action est irréversible.`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#d33",
+                            cancelButtonColor: "#3085d6",
+                            confirmButtonText: "Oui, supprimer",
+                            cancelButtonText: "Annuler",
+                            width: "50%",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              handleDelete(course._id);
+                            }
+                          });
+                        }}
+                        className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1 rounded cursor-pointer"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <Loading />
+  );
+};
 
-// // export default MyCourses;
+export default MyCourses;
 
 // "use client";
 
@@ -569,163 +569,3 @@
 
 // export default MyCourses;
 
-import React, { useContext, useEffect, useState } from "react";
-import { AppContext } from "../../context/AppContext";
-import Loading from "../../components/student/Loading";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import Swal from "sweetalert2";
-
-const MyCourses = () => {
-  const { backendUrl, allCourses, fetchAllCourses, calculateCourseDuration } =
-    useContext(AppContext);
-
-  const [courses, setCourses] = useState(null);
-  const [matiereNames, setMatiereNames] = useState({}); // { matiereId: matiereNom }
-
-  useEffect(() => {
-    const loadCoursesAndMatieres = async () => {
-      try {
-        await fetchAllCourses();
-
-        const matiereIds = [
-          ...new Set(allCourses.map((course) => course.matiere)),
-        ];
-
-        const matiereRequests = matiereIds.map(async (id) => {
-          try {
-            const res = await axios.get(`${backendUrl}/matiere/get/${id}`);
-            return { id, nom: res.data.data.nom || "Nom non trouvé" };
-          } catch (err) {
-            console.error("Erreur récupération matière :", id, err);
-            return { id, nom: "Erreur chargement" };
-          }
-        });
-
-        const matieres = await Promise.all(matiereRequests);
-        const matiereMap = {};
-        matieres.forEach(({ id, nom }) => {
-          matiereMap[id] = nom;
-        });
-
-        setMatiereNames(matiereMap);
-        setCourses(allCourses);
-      } catch (error) {
-        console.error("Erreur chargement cours/matières :", error);
-      }
-    };
-
-    loadCoursesAndMatieres();
-  }, []);
-
-  const handleDelete = async (id) => {
-    try {
-      await fetchAllCourses(); // Recharger les cours après suppression
-      setCourses(allCourses);
-      console.log("Course deleted");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const confirmDelete = (course) => {
-    Swal.fire({
-      title: "Êtes-vous sûr ?",
-      text: `Voulez-vous vraiment supprimer ce cours ? Cette action est irréversible.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Oui, supprimer",
-      cancelButtonText: "Annuler",
-      width: "90%",
-      maxWidth: "500px",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        handleDelete(course._id);
-      }
-    });
-  };
-
-  if (!courses) {
-    return <Loading />;
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Mes cours
-          </h2>
-          <button
-            onClick={async () => {
-              await fetchAllCourses();
-              setCourses(allCourses);
-            }}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-          >
-            Rafraîchir les cours
-          </button>
-        </div>
-
-        {courses.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            Aucun cours trouvé. Commencez par créer votre premier cours.
-          </div>
-        ) : (
-          <table className="w-full bg-white rounded-md shadow-md overflow-hidden">
-            <thead>
-              <tr className="bg-gray-100 border-b">
-                <th className="px-6 py-4 text-left">Cours (Nom matière)</th>
-                <th className="px-6 py-4 text-left">Durée</th>
-                <th className="px-6 py-4 text-left">Publié le</th>
-                <th className="px-6 py-4 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((course) => (
-                <tr key={course._id} className="border-b hover:bg-gray-50">
-                  <td className="flex items-center space-x-4 px-6 py-3">
-                    <img
-                      src={course.courseThumbnail || "/placeholder.svg"}
-                      alt="Course thumbnail"
-                      className="w-16 h-12 object-cover rounded-md border"
-                    />
-                    <span className="truncate">
-                      {matiereNames[course.matiere] || "Chargement..."}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 text-gray-600 text-sm">
-                    {calculateCourseDuration(course)}
-                  </td>
-                  <td className="px-6 py-3 text-gray-600 text-sm">
-                    {new Date(course.createdAt).toLocaleDateString("fr-FR")}
-                  </td>
-                  <td className="px-6 py-3">
-                    <div className="flex space-x-2">
-                      <Link
-                        to={`/educator/update-course/${course._id}`}
-                        className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
-                      >
-                        Modifier
-                      </Link>
-                      <button
-                        onClick={() => confirmDelete(course)}
-                        className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default MyCourses;
