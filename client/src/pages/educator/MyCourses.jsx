@@ -180,13 +180,13 @@ const MyCourses = () => {
   };
 
   useEffect(() => {
-    fetchAllCourses();
-  }, []);
-
-  useEffect(() => {
     if (allCourses.length > 0) {
       setCourses(allCourses);
     }
+  }, [allCourses]);
+
+  useEffect(() => {
+    fetchAllCourses();
   }, [allCourses]);
 
   if (!courses) {
