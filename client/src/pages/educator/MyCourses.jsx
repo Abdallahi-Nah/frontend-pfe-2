@@ -583,41 +583,45 @@ const MyCourses = () => {
   const [courses, setCourses] = useState(null);
   const [matiereNames, setMatiereNames] = useState({}); // { matiereId: matiereNom }
 
-  // Appelé une seule fois au chargement
   useEffect(() => {
-    fetchAllCourses();
-  }, []);
+    const loadCoursesAndMatieres = async () => {
+      try {
+        await fetchAllCourses();
 
-  // Synchroniser courses à chaque changement de allCourses
-  useEffect(() => {
-    console.log("allCourses : ", allCourses);
-    setCourses(allCourses); // Toujours mettre à jour courses, même si vide
+        const matiereIds = [
+          ...new Set(allCourses.map((course) => course.matiere)),
+        ];
 
-    const uniqueMatiereIds = [
-      ...new Set(allCourses.map((course) => course.matiere)),
-    ];
+        const matiereRequests = matiereIds.map(async (id) => {
+          try {
+            const res = await axios.get(`${backendUrl}/matiere/get/${id}`);
+            return { id, nom: res.data.data.nom || "Nom non trouvé" };
+          } catch (err) {
+            console.error("Erreur récupération matière :", id, err);
+            return { id, nom: "Erreur chargement" };
+          }
+        });
 
-    uniqueMatiereIds.forEach(async (matiereId) => {
-      if (!matiereNames[matiereId]) {
-        try {
-          const res = await axios.get(`${backendUrl}/matiere/get/${matiereId}`);
-          const nom = res.data.data.nom || "Nom non trouvé";
-          setMatiereNames((prev) => ({ ...prev, [matiereId]: nom }));
-        } catch (error) {
-          console.error("Erreur récupération matière", matiereId, error);
-          setMatiereNames((prev) => ({
-            ...prev,
-            [matiereId]: "Erreur chargement",
-          }));
-        }
+        const matieres = await Promise.all(matiereRequests);
+        const matiereMap = {};
+        matieres.forEach(({ id, nom }) => {
+          matiereMap[id] = nom;
+        });
+
+        setMatiereNames(matiereMap);
+        setCourses(allCourses);
+      } catch (error) {
+        console.error("Erreur chargement cours/matières :", error);
       }
-    });
-  }, [allCourses]);
+    };
+
+    loadCoursesAndMatieres();
+  }, []);
 
   const handleDelete = async (id) => {
     try {
-      // await axios.delete(`${backendUrl}/course/${id}`);
       await fetchAllCourses(); // Recharger les cours après suppression
+      setCourses(allCourses);
       console.log("Course deleted");
     } catch (error) {
       console.log(error);
@@ -654,16 +658,10 @@ const MyCourses = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
             Mes cours
           </h2>
-          {/* <button
-            onClick={fetchAllCourses}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-          >
-            Rafraîchir les cours
-          </button> */}
           <button
             onClick={async () => {
               await fetchAllCourses();
-              setCourses([...allCourses]); // 🔁 forcer mise à jour locale
+              setCourses(allCourses);
             }}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
           >
