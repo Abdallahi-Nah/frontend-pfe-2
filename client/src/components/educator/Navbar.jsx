@@ -163,7 +163,7 @@
 "use client";
 import React, { useState } from "react";
 import { assets } from "../../assets/assets";
-import { Link } from "next/link";
+import { Link } from "react-router-dom"; 
 import { useRouter, usePathname } from "next/navigation";
 
 const Navbar = () => {
