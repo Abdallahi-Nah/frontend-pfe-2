@@ -418,6 +418,157 @@
 
 // export default MyCourses;
 
+// import React, { useContext, useEffect, useState } from "react";
+// import { AppContext } from "../../context/AppContext";
+// import Loading from "../../components/student/Loading";
+// import { Link } from "react-router-dom";
+// import axios from "axios";
+// import Swal from "sweetalert2";
+
+// const MyCourses = () => {
+//   const { backendUrl, allCourses, fetchAllCourses, calculateCourseDuration } =
+//     useContext(AppContext);
+
+//   const [courses, setCourses] = useState(null);
+//   const [matiereNames, setMatiereNames] = useState({}); // { matiereId: matiereNom }
+
+//   useEffect(() => {
+//     fetchAllCourses();
+//   }, []);
+
+//   useEffect(() => {
+//     if (allCourses.length > 0) {
+//       setCourses(allCourses);
+
+//       // Extraire IDs matières uniques
+//       const uniqueMatiereIds = [
+//         ...new Set(allCourses.map((course) => course.matiere)),
+//       ];
+
+//       // Pour chaque matiereId, récupérer le nom si pas déjà dans matiereNames
+//       uniqueMatiereIds.forEach(async (matiereId) => {
+//         if (!matiereNames[matiereId]) {
+//           try {
+//             const res = await axios.get(
+//               `${backendUrl}/matiere/get/${matiereId}`
+//             );
+//             console.log("res bbb : ", res.data);
+//             const nom = res.data.data.nom || "Nom non trouvé";
+//             setMatiereNames((prev) => ({ ...prev, [matiereId]: nom }));
+//           } catch (error) {
+//             console.error("Erreur récupération matière", matiereId, error);
+//             setMatiereNames((prev) => ({
+//               ...prev,
+//               [matiereId]: "Erreur chargement",
+//             }));
+//           }
+//         }
+//       });
+//     }
+//   }, [allCourses]);
+
+//   const handleDelete = async (id) => {
+//     try {
+//       // const res = await axios.delete(`${backendUrl}/course/${id}`);
+//       await fetchAllCourses();
+//       console.log("Course deleted");
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   const confirmDelete = (course) => {
+//     Swal.fire({
+//       title: "Êtes-vous sûr ?",
+//       text: `Voulez-vous vraiment supprimer ce cours ? Cette action est irréversible.`,
+//       icon: "warning",
+//       showCancelButton: true,
+//       confirmButtonColor: "#d33",
+//       cancelButtonColor: "#3085d6",
+//       confirmButtonText: "Oui, supprimer",
+//       cancelButtonText: "Annuler",
+//       width: "90%",
+//       maxWidth: "500px",
+//     }).then((result) => {
+//       if (result.isConfirmed) {
+//         handleDelete(course._id);
+//       }
+//     });
+//   };
+
+//   if (!courses) {
+//     return <Loading />;
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+//       <div className="max-w-7xl mx-auto">
+//         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+//           Mes cours
+//         </h2>
+
+//         {courses.length === 0 ? (
+//           <div className="text-center py-12 text-gray-500">
+//             Aucun cours trouvé. Commencez par créer votre premier cours.
+//           </div>
+//         ) : (
+//           <table className="w-full bg-white rounded-md shadow-md overflow-hidden">
+//             <thead>
+//               <tr className="bg-gray-100 border-b">
+//                 <th className="px-6 py-4 text-left">Cours (Nom matière)</th>
+//                 <th className="px-6 py-4 text-left">Durée</th>
+//                 <th className="px-6 py-4 text-left">Publié le</th>
+//                 <th className="px-6 py-4 text-left">Actions</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {courses.map((course) => (
+//                 <tr key={course._id} className="border-b hover:bg-gray-50">
+//                   <td className="flex items-center space-x-4 px-6 py-3">
+//                     <img
+//                       src={course.courseThumbnail || "/placeholder.svg"}
+//                       alt="Course thumbnail"
+//                       className="w-16 h-12 object-cover rounded-md border"
+//                     />
+//                     <span className="truncate">
+//                       {/* Affiche le nom de la matière récupéré, ou fallback */}
+//                       {matiereNames[course.matiere] || "Chargement..."}
+//                     </span>
+//                   </td>
+//                   <td className="px-6 py-3 text-gray-600 text-sm">
+//                     {calculateCourseDuration(course)}
+//                   </td>
+//                   <td className="px-6 py-3 text-gray-600 text-sm">
+//                     {new Date(course.createdAt).toLocaleDateString("fr-FR")}
+//                   </td>
+//                   <td className="px-6 py-3">
+//                     <div className="flex space-x-2">
+//                       <Link
+//                         to={`/educator/update-course/${course._id}`}
+//                         className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+//                       >
+//                         Modifier
+//                       </Link>
+//                       <button
+//                         onClick={() => confirmDelete(course)}
+//                         className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+//                       >
+//                         Supprimer
+//                       </button>
+//                     </div>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default MyCourses;
+
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import Loading from "../../components/student/Loading";
@@ -432,45 +583,40 @@ const MyCourses = () => {
   const [courses, setCourses] = useState(null);
   const [matiereNames, setMatiereNames] = useState({}); // { matiereId: matiereNom }
 
+  // Appelé une seule fois au chargement
   useEffect(() => {
     fetchAllCourses();
   }, []);
 
+  // Synchroniser courses à chaque changement de allCourses
   useEffect(() => {
-    if (allCourses.length > 0) {
-      setCourses(allCourses);
+    setCourses(allCourses); // Toujours mettre à jour courses, même si vide
 
-      // Extraire IDs matières uniques
-      const uniqueMatiereIds = [
-        ...new Set(allCourses.map((course) => course.matiere)),
-      ];
+    const uniqueMatiereIds = [
+      ...new Set(allCourses.map((course) => course.matiere)),
+    ];
 
-      // Pour chaque matiereId, récupérer le nom si pas déjà dans matiereNames
-      uniqueMatiereIds.forEach(async (matiereId) => {
-        if (!matiereNames[matiereId]) {
-          try {
-            const res = await axios.get(
-              `${backendUrl}/matiere/get/${matiereId}`
-            );
-            console.log("res bbb : ", res.data);
-            const nom = res.data.data.nom || "Nom non trouvé";
-            setMatiereNames((prev) => ({ ...prev, [matiereId]: nom }));
-          } catch (error) {
-            console.error("Erreur récupération matière", matiereId, error);
-            setMatiereNames((prev) => ({
-              ...prev,
-              [matiereId]: "Erreur chargement",
-            }));
-          }
+    uniqueMatiereIds.forEach(async (matiereId) => {
+      if (!matiereNames[matiereId]) {
+        try {
+          const res = await axios.get(`${backendUrl}/matiere/get/${matiereId}`);
+          const nom = res.data.data.nom || "Nom non trouvé";
+          setMatiereNames((prev) => ({ ...prev, [matiereId]: nom }));
+        } catch (error) {
+          console.error("Erreur récupération matière", matiereId, error);
+          setMatiereNames((prev) => ({
+            ...prev,
+            [matiereId]: "Erreur chargement",
+          }));
         }
-      });
-    }
+      }
+    });
   }, [allCourses]);
 
   const handleDelete = async (id) => {
     try {
-      // const res = await axios.delete(`${backendUrl}/course/${id}`);
-      await fetchAllCourses();
+      // await axios.delete(`${backendUrl}/course/${id}`);
+      await fetchAllCourses(); // Recharger les cours après suppression
       console.log("Course deleted");
     } catch (error) {
       console.log(error);
@@ -503,9 +649,17 @@ const MyCourses = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          Mes cours
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Mes cours
+          </h2>
+          <button
+            onClick={fetchAllCourses}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+          >
+            Rafraîchir les cours
+          </button>
+        </div>
 
         {courses.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
@@ -531,7 +685,6 @@ const MyCourses = () => {
                       className="w-16 h-12 object-cover rounded-md border"
                     />
                     <span className="truncate">
-                      {/* Affiche le nom de la matière récupéré, ou fallback */}
                       {matiereNames[course.matiere] || "Chargement..."}
                     </span>
                   </td>
