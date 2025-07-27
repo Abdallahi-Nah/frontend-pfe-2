@@ -452,7 +452,8 @@ const MyCourses = () => {
             const res = await axios.get(
               `${backendUrl}/matiere/get/${matiereId}`
             );
-            const nom = res.data.nom || "Nom non trouvé";
+            console.log("res bbb : ", res.data);
+            const nom = res.data.data.nom || "Nom non trouvé";
             setMatiereNames((prev) => ({ ...prev, [matiereId]: nom }));
           } catch (error) {
             console.error("Erreur récupération matière", matiereId, error);
