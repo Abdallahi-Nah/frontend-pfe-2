@@ -161,7 +161,7 @@
 // export default Navbar;
 
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { assets } from "../../assets/assets";
 import { Link } from "next/link";
 import { useRouter, usePathname } from "next/navigation";
