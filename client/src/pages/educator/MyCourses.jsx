@@ -590,28 +590,33 @@ const MyCourses = () => {
 
   // Synchroniser courses à chaque changement de allCourses
   useEffect(() => {
-    setCourses(allCourses); // Toujours mettre à jour courses, même si vide
+    // Met à jour la liste des cours à chaque changement de allCourses
+    setCourses([...allCourses]);
 
-    const uniqueMatiereIds = [
-      ...new Set(allCourses.map((course) => course.matiere)),
-    ];
+    const fetchMatiereNames = async () => {
+      const uniqueMatiereIds = [...new Set(allCourses.map((c) => c.matiere))];
+      const updatedNames = { ...matiereNames };
 
-    uniqueMatiereIds.forEach(async (matiereId) => {
-      if (!matiereNames[matiereId]) {
-        try {
-          const res = await axios.get(`${backendUrl}/matiere/get/${matiereId}`);
-          const nom = res.data.data.nom || "Nom non trouvé";
-          setMatiereNames((prev) => ({ ...prev, [matiereId]: nom }));
-        } catch (error) {
-          console.error("Erreur récupération matière", matiereId, error);
-          setMatiereNames((prev) => ({
-            ...prev,
-            [matiereId]: "Erreur chargement",
-          }));
+      for (const matiereId of uniqueMatiereIds) {
+        if (!updatedNames[matiereId]) {
+          try {
+            const res = await axios.get(
+              `${backendUrl}/matiere/get/${matiereId}`
+            );
+            const nom = res.data.data.nom || "Nom non trouvé";
+            updatedNames[matiereId] = nom;
+          } catch (err) {
+            console.error("Erreur matière", matiereId, err);
+            updatedNames[matiereId] = "Erreur chargement";
+          }
         }
       }
-    });
-  }, [allCourses]);
+
+      setMatiereNames(updatedNames);
+    };
+
+    fetchMatiereNames();
+  }, [allCourses]); 
 
   const handleDelete = async (id) => {
     try {
