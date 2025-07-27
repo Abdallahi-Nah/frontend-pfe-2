@@ -187,7 +187,7 @@ const MyCourses = () => {
 
   useEffect(() => {
     fetchAllCourses();
-  }, [allCourses]);
+  }, []);
 
   if (!courses) {
     return <Loading />;
