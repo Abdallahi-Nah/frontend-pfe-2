@@ -564,31 +564,40 @@ const AddCourse = () => {
     getCourseById();
   }, []);
 
-  useEffect(() => {
-    const fetchMatiereName = async () => {
-      if (matiere) {
-        try {
-          const response = await axios.get(
-            `${backendUrl}/matiere/get/${matiere}`
-          );
-          console.log("res : ", response);
-          if (response.data && response.data.nom) {
-            setCourseTitle(response.data.nom);
-          }
-        } catch (error) {
-          console.error(
-            "Erreur lors de la récupération du nom de la matière :",
-            error
-          );
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchMatiereName = async () => {
+  //     if (matiere) {
+  //       try {
+  //         const response = await axios.get(
+  //           `${backendUrl}/matiere/get/${matiere}`
+  //         );
+  //         console.log("res : ", response);
+  //         if (response.data && response.data.nom) {
+  //           setCourseTitle(response.data.nom);
+  //         }
+  //       } catch (error) {
+  //         console.error(
+  //           "Erreur lors de la récupération du nom de la matière :",
+  //           error
+  //         );
+  //       }
+  //     }
+  //   };
 
-    // Si on est en création de cours (pas modification)
-    if (!idCourse) {
-      fetchMatiereName();
+  //   // Si on est en création de cours (pas modification)
+  //   if (!idCourse) {
+  //     fetchMatiereName();
+  //   }
+  // }, [matiere]);
+
+  useEffect(() => {
+    if (!idCourse && matiere) {
+      const matiereObj = matieresUniques.find((m) => m._id === matiere);
+      if (matiereObj) {
+        setCourseTitle(matiereObj.nom);
+      }
     }
-  }, [matiere]);
+  }, [matiere, idCourse, matieresUniques]);
 
 
   const handleChapter = (action, chapterId) => {
