@@ -249,7 +249,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Burger menu button - Always visible */}
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed mt-3.5 left-4 z-50">
         <button
           onClick={toggleSidebar}
           className="p-2 rounded-md bg-white shadow-md border border-gray-200 hover:bg-gray-50 transition-colors"
