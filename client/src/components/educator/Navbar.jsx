@@ -161,7 +161,7 @@
 // export default Navbar;
 
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { assets, dummyEducatorData } from "../../assets/assets";
 import { Link } from "react-router-dom";
 import Cookie from "cookie-universal";
