@@ -590,6 +590,7 @@ const MyCourses = () => {
 
   // Synchroniser courses à chaque changement de allCourses
   useEffect(() => {
+    console.log("allCourses : ", allCourses);
     setCourses(allCourses); // Toujours mettre à jour courses, même si vide
 
     const uniqueMatiereIds = [
