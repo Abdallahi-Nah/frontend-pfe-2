@@ -477,6 +477,36 @@ export default function StudentResults() {
     }
   };
 
+  const calculerDecisionMatiere = (matiere, moyenneModule) => {
+    const moyenne = matiere.moyenne;
+    const ratt = matiere.Rattrapage;
+
+    if (moyenne >= 10) return "V";
+    if (moyenne >= 7 && moyenne < 10) {
+      if (moyenneModule >= 10) return "V";
+      else return ratt > 0 ? "NV" : "R";
+    }
+    if (moyenne < 7) {
+      return ratt > 0 ? "NV" : "R";
+    }
+    return "NV";
+  };
+
+  const calculerDecisionModule = (decisionsMatieres) => {
+    if (decisionsMatieres.every((d) => d === "V")) return "V";
+    if (decisionsMatieres.includes("R")) return "R";
+    if (decisionsMatieres.includes("NV")) return "NV";
+    return "NV";
+  };
+
+  const calculerDecisionSemestre = (decisionsModules) => {
+    if (decisionsModules.every((d) => d === "V")) return "V";
+    if (decisionsModules.includes("R")) return "R";
+    if (decisionsModules.includes("NV")) return "NV";
+    return "NV";
+  };
+
+
   // 2. Récupérer les résultats selon le semestre
   const getStudentResults = async () => {
     try {
@@ -490,10 +520,32 @@ export default function StudentResults() {
       );
 
       if (found) {
+        const modules = found.modules || [];
+
+        // Recalcul des décisions
+        const decisionsModules = [];
+
+        modules.forEach((module) => {
+          const moyenneModule = module.moyenneModule || 0;
+          const decisionsMatieres = [];
+
+          module.notesMatieres.forEach((matiere) => {
+            const decision = calculerDecisionMatiere(matiere, moyenneModule);
+            matiere.decision = decision;
+            decisionsMatieres.push(decision);
+          });
+
+          const decisionModule = calculerDecisionModule(decisionsMatieres);
+          module.decisionModule = decisionModule;
+          decisionsModules.push(decisionModule);
+        });
+
+        const decisionSemestre = calculerDecisionSemestre(decisionsModules);
+
         setResultsData(found.modules || []);
         setSemesterAverage(found.moyenneSemestre || 0);
         setValidatedCredits(found.creditsSemestreValidee || 0);
-        setJuryDecision(found.decisionSemestre || "NV");
+        setJuryDecision(decisionSemestre || "NV");
       } else {
         setResultsData([]);
         setSemesterAverage(0);
