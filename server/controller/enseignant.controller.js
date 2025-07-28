@@ -209,8 +209,8 @@ exports.addCourse = async (req, res) => {
     // Ajout d'un éducateur par défaut (à adapter si auth activée plus tard)
     // const educatorId = "6807995415366c19744d377a";
     console.log("educator : ", req.cookies.id);
-    const educatorId = req.cookies.id;
-    courseData.educator = educatorId;
+    // const educatorId = req.cookies.id;
+    // courseData.educator = educatorId;
 
     // Upload image to Cloudinary
     let imageUpload;
