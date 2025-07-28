@@ -657,7 +657,9 @@ export default function StudentResults() {
                       <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
                         Ecrit
                       </th>
-                      <th className="border px-3 py-2">Ratt</th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        Ratt
+                      </th>
                       <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
                         Moy
                       </th>
