@@ -642,33 +642,49 @@ export default function StudentResults() {
                 <table className="w-full border-collapse border border-gray-300 text-sm">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="border px-3 py-2">Matière</th>
-                      <th className="border px-3 py-2">Credit</th>
-                      <th className="border px-3 py-2">CC</th>
-                      <th className="border px-3 py-2">TP</th>
-                      <th className="border px-3 py-2">E</th>
-                      <th className="border px-3 py-2">Rattrapage</th>
-                      <th className="border px-3 py-2">M</th>
-                      <th className="border px-3 py-2">D</th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        Matière
+                      </th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        Credit
+                      </th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        CC
+                      </th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        TP
+                      </th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        Ecrit
+                      </th>
+                      <th className="border px-3 py-2">Ratt</th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        Moy
+                      </th>
+                      <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                        D
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {module.notesMatieres.map((m, j) => (
                       <tr key={j} className="hover:bg-gray-50">
-                        <td className="border px-3 py-2">{m.nom}</td>
-                        <td className="border px-3 py-2 text-center">
+                        <td className="border border-gray-300 px-3 py-2">
+                          {m.nom}
+                        </td>
+                        <td className="border border-gray-300 px-3 py-2 text-center">
                           {m.credit}
                         </td>
-                        <td className="border px-3 py-2 text-center">
+                        <td className="border border-gray-300 px-3 py-2 text-center">
                           {m.CC || "-"}
                         </td>
-                        <td className="border px-3 py-2 text-center">
+                        <td className="border border-gray-300 px-3 py-2 text-center">
                           {m.TP || "-"}
                         </td>
-                        <td className="border px-3 py-2 text-center">
+                        <td className="border border-gray-300 px-3 py-2 text-center">
                           {m.Ecrit || "-"}
                         </td>
-                        <td className="border px-3 py-2 text-center">
+                        <td className="border border-gray-300 px-3 py-2 text-center">
                           {m.Rattrapage > 0 ? (
                             <span className="text-orange-600 font-semibold">
                               {m.Rattrapage}
@@ -677,11 +693,11 @@ export default function StudentResults() {
                             "-"
                           )}
                         </td>
-                        <td className="border px-3 py-2 text-center font-semibold">
+                        <td className="border border-gray-300 px-3 py-2 text-center font-semibold">
                           {m.moyenne?.toFixed(2)}
                         </td>
                         <td
-                          className={`border px-3 py-2 text-center font-semibold ${getDecisionColor(
+                          className={`border border-gray-300 px-3 py-2 text-center font-semibold ${getDecisionColor(
                             m.decision
                           )}`}
                         >
