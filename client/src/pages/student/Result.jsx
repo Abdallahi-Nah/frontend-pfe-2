@@ -514,6 +514,7 @@ export default function StudentResults() {
   }, [idStu]);
 
   useEffect(() => {
+    console.log("selectedSemester : ", selectedSemester);
     if (idStu && selectedSemester) getStudentResults();
   }, [selectedSemester, idStu]);
 
