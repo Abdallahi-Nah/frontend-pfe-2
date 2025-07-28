@@ -470,7 +470,7 @@ const MyCourses = () => {
 
   const handleDelete = async (id) => {
     try {
-      // const res = await axios.delete(`${backendUrl}/course/${id}`);
+      const res = await axios.delete(`${backendUrl}/course/${id}`);
       await fetchAllCourses();
       console.log("Course deleted");
     } catch (error) {
