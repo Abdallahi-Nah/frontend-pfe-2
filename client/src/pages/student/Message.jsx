@@ -23,13 +23,28 @@ export default function Message() {
     }
   };
 
+  // const getMessages = async () => {
+  //   if (!selectedTeacherId || !userId) return;
+  //   try {
+  //     const res = await axios.get(
+  //       `${backendUrl}/message/get/${selectedTeacherId}`,
+  //       { withCredentials: true }
+  //     );
+  //     setChatMessages(res.data);
+  //   } catch (error) {
+  //     console.log("Erreur récupération messages :", error);
+  //   }
+  // };
+
   const getMessages = async () => {
+    console.log("selectedTeacherId : ", selectedTeacherId);
     if (!selectedTeacherId || !userId) return;
     try {
       const res = await axios.get(
-        `${backendUrl}/message/get/${selectedTeacherId}`,
+        `${backendUrl}/message/get-conversation/${userId}/${selectedTeacherId}`,
         { withCredentials: true }
       );
+      console.log("Messages récupérés :", res.data);
       setChatMessages(res.data);
     } catch (error) {
       console.log("Erreur récupération messages :", error);
