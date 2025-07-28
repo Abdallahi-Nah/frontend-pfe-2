@@ -32,6 +32,7 @@ export const AppContextProvider = (props) => {
         );
 
         if (data.data) {
+          console.log("✅ Tous les cours récupérés :", data.data);
           setAllCourses(data.data);
         } else {
           toast.error(data.message);
