@@ -706,6 +706,8 @@ const AddCourse = () => {
     const formData = new FormData();
     formData.append("courseData", JSON.stringify(courseData));
     formData.append("image", image);
+    console.log("Cookie id:", cookies.get("id"));
+    console.log("Course data to send:", courseData);
 
     for (const [key, value] of formData.entries()) {
       console.log("FormData:", key, value);
